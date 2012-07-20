@@ -1,18 +1,20 @@
 $(document).ready(function(){
 	initMore();
 	initProfileViewer();
+	initProgressBar();
 });
 
 
 function initMore(){
 	$('.more').each(function(){
-		if ($(this).parent().parent().find('.long').html().length == $(this).parent().parent().find('.short').html().length) {
+		if ($(this).parent().parent().find('.long').html().length 
+				== $(this).parent().parent().find('.short').html().length) {
 			$(this).hide();
 		}
 	});
 	$('.more').click(function(){
 		$(this).parent().parent().find('.long').show();
-		$(this).parent().parent().children('.short').hide();
+		$(this).parent().parent().find('.short').hide();
 		return false;
 	});
 	$('.less').click(function(){
@@ -32,3 +34,14 @@ function initProfileViewer(){
 		return false;
 	});
 }
+
+
+function initProgressBar(){
+	$('.donated').each(function(){
+		var width = $(this).css('width');
+		$(this).css('width', 0);
+		$(this).animate({width: width}, 2000);
+		 
+	});
+}
+
