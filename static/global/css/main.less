@@ -263,3 +263,34 @@ body {
   }
   
 }
+
+.phases {
+  background-color: @white;
+  height: 28px;
+  padding: 2px;
+}
+
+.phases li {
+  text-align: center;
+  color: @white;
+  background-color: @gray;
+  padding: 4px 6px;
+  font-family: @futura;
+  font-weight: bold;
+  font-size: 1em;
+  margin: 2px;
+  float: left;
+  border-radius: 12px;
+}
+
+
+.phases.idea .idea,
+.phases.plan .idea,
+.phases.plan .plan,
+.phases.act .idea,
+.phases.act .plan,
+.phases.act .act,
+.phases.results li
+{
+  background-color: @green;
+}
