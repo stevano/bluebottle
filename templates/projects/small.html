@@ -1,4 +1,8 @@
 {% load thumbnail %}
-<h1>{{ project.title }}</h1>
+<h1>
+	<a href="{{ project.get_absolute_url }}">
+		{{ project.title }}		
+	</a>
+</h1>
 <p>{{ project.location }}</p>
 
