@@ -40,7 +40,10 @@ function initProgressBar(){
 	$('.donated').each(function(){
 		var width = $(this).css('width');
 		$(this).css('width', 0);
-		$(this).animate({width: width}, 2000);
+		$(this).parents('.progressbar').find('.amount-donated').css({opacity: 0});
+		$(this).animate({width: width}, 2000,function(){
+			$(this).parents('.progressbar').find('.amount-donated').css({opacity: 1});
+		});
 		 
 	});
 }
