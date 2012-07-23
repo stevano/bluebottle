@@ -15,24 +15,30 @@ BlueApp.views.add('New', {tpl: 'About'});
 
 BlueApp.views.add('Project');
 
+BlueApp.snippets.setCallback(function(){
+	init();
+});
+
 BlueApp.routers.Main = new (Bluebone.Router.extend({
     routes: {
-        ""                  : "home",
-        "projects/:id"      : "project",
+        ""                   : "home",
+        "projects/:slug/"     : "project",
+        "projects/:slug/map/" : "projectMap",
     },
 
     initialize: function () {
         console.log('Initializing BlueApp');
     },
+	
 
-    project: function(id) {
-        var project = new BlueApp.models.Project({id: id});
-        project.fetch({
-            success: function(){
-                BlueApp.views.Project.renderTo('#toppanel', project);
-            }
-        });
+    project: function(slug) {
+	    BlueApp.snippets.renderTo('#toppanel', '/projects/' +  slug );
+    },
 
+
+    projectMap: function(slug) {
+    	var url = '/projects/' + slug + '/map';
+    	BlueApp.snippets.renderTo('#toppanel', url);
     }
 
 }));

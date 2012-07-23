@@ -2,9 +2,7 @@ $(document).ready(function(){
 	initOnce();
 	init();
 });
-
 function initOnce(){
-	
 }
 
 function init(){
@@ -14,13 +12,11 @@ function init(){
 	initAjax();
 }
 
+
 function initAjax(){
-	$('a.ajax').unbind('click');
 	$('a.ajax').click(function(){
 		var url = $(this).attr('href');
-		$('#toppanel').load(url, function(){
-			init();
-		});
+		BlueApp.routers.Main.navigate(url, {trigger: true});
 		return false;
 	});
 }

@@ -11,6 +11,8 @@
     Bluebone.models = {};
     Bluebone.views = {};
     Bluebone.templates = {};
+    Bluebone.snippets = {};
+
 
     /* MODELS */
 
@@ -32,7 +34,7 @@
         }
         Bluebone.models[name] = new(Bluebone.Collection.extend(cfg));
         return Bluebone.models[name];
-    }
+    };
 
     /* TEMPLATES */
 
@@ -41,6 +43,24 @@
         if (undefined == Bluebone.templates[name]) {
             console.log('Load template: ' + name);
             $.get('/static/assets/global/tpl/' + name + '.tpl', function(data) {
+                Bluebone.templates[name] = data;
+                //console.log(Bluebone.templates[name]);
+                callback(data);
+            });
+        } else {
+            callback(Bluebone.templates[name]);
+        }
+
+    }
+
+    /* SNIPPETS */
+
+    // Load a html snippets either from memory or through ajax
+    Bluebone.snippets.load = function(url, callback) {
+    	var name = url.replace(/\//g, ".");
+        if (undefined == Bluebone.templates[name]) {
+            console.log('Load template: ' + name + ' : ' + url);
+            $.get(url, function(data) {
                 Bluebone.templates[name] = data;
                 //console.log(Bluebone.templates[name]);
                 callback(data);
@@ -78,6 +98,7 @@
     });
 
 
+	
     // Get a view from views array
     Bluebone.views.get = function(view) {
         if (undefined === Bluebone.views[view]) {
@@ -97,6 +118,34 @@
         Bluebone.views[name] = new (Bluebone.View.extend(cfg));
     };
 
+
+	// Special view for loading HTML snippets
+    Bluebone.snippets.View = new (Backbone.View.extend({
+
+        initialize: function() {
+            return this;
+        },
+
+        renderTo: function(el, url) {
+            var self = this;
+            Bluebone.snippets.load(url, function(html){
+                $(el).html(html);
+                if (undefined != Bluebone.snippets.callback) {
+                	Bluebone.snippets.callback();
+                }
+            });
+            return this;
+        },
+
+    }));
+
+	Bluebone.snippets.renderTo = function(el, url){
+		Bluebone.snippets.View.renderTo(el, url);
+	}
+
+	Bluebone.snippets.setCallback = function(func) {
+		Bluebone.snippets.callback = func;
+	}
 
 
     Bluebone.views.addList = function(name, cfg) {
