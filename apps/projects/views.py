@@ -21,3 +21,8 @@ class ProjectMapView(ProjectViewBase, DetailView):
 
 class ProjectPicturesView(ProjectViewBase, DetailView):
     template_name = "projects/pictures.html"
+
+class ProjectSearchView(ProjectViewBase, ListView):
+    template_name = "projects/search.html"
+
+

@@ -85,11 +85,16 @@
         renderTo: function(el, model) {
             var self = this;
             Bluebone.templates.load(this.tpl, function(template){
-                //console.log(model);
                 if (undefined == model) {
                     $(el).html(template);
+	                if (undefined != Bluebone.views.callback) {
+	                	Bluebone.views.callback(el);
+	                }
                 } else {
                     $(el).html(_.template(template, model.attributes));
+	                if (undefined != Bluebone.views.callback) {
+	                	Bluebone.views.callback(el);
+	                }
                 }
             });
             return this;
@@ -131,7 +136,7 @@
             Bluebone.snippets.load(url, function(html){
                 $(el).html(html);
                 if (undefined != Bluebone.snippets.callback) {
-                	Bluebone.snippets.callback();
+                	Bluebone.snippets.callback(el);
                 }
             });
             return this;
@@ -145,6 +150,10 @@
 
 	Bluebone.snippets.setCallback = function(func) {
 		Bluebone.snippets.callback = func;
+	}
+
+	Bluebone.views.setCallback = function(func) {
+		Bluebone.views.callback = func;
 	}
 
 
@@ -189,6 +198,9 @@
                             Bluebone.views.get(thisView.itemView).render(template, items[item], function(item){
                                 var li = $('<li />').append(item);
                                 $('ul.' + thisView.class, el).append(li);
+				                if (undefined != Bluebone.views.callback) {
+				                	Bluebone.views.callback(el);
+				                }
                             })
 
                         }

@@ -121,12 +121,6 @@ this.BlueMap = function(elementId, project){
 			// Add our custom MapStyle
 			my.addMapStyle('1pct', my.mapStyle, '1%COLORS');
 
-			// Listen to map changes to load projects
-			// Wait until map is dawn drawing
-			// and then get all projects that are on this map...  
-			google.maps.event.addListener(my.map, 'idle', function() {
-				my.loadProjects();
-			});
 		}
 		return my.map;
 	}
@@ -194,9 +188,21 @@ this.BlueMap = function(elementId, project){
 		
 	};
 
+	this.showProjects = function(filter) {
+		var my = this;
+		// Listen to map changes to load projects
+		// Wait until map is dawn drawing
+		// and then get all projects that are on this map...  
+		google.maps.event.addListener(my.map, 'idle', function() {
+			my.loadProjects(filter);
+		});
+		return my;
+	}
 	
 	// Get it going!
 	this.map = this.getMap();
+	
+	return this;
 
 	
 };

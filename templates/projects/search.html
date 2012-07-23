@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block htmltitle %}{{ block.super }} | {{ project }}{% endblock %}
+
+{% block htmlheader %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+<h1>ZOEKEN MAAR.....</h1>
+
+	<script>
+		$(document).ready(function(){
+			BlueApp.views.load([
+				{
+					container: '#midpanel',
+					//method: 'replace',
+					//lifetime: 60,
+					'widgets' : [ 
+						{
+							name: 'SearchProjects',
+							//lifetime: 60,
+						}]
+				}
+			]);	
+			
+		})
+		
+	</script>
+	
+{% endblock %}

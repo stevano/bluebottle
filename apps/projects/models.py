@@ -61,6 +61,7 @@ class Project(models.Model):
         choices=settings.LANGUAGES,
         help_text=_("Main language of the project."))
 
+    
     # temporary to do random donated thing 
     donated = 0
 

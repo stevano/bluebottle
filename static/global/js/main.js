@@ -5,16 +5,16 @@ $(document).ready(function(){
 function initOnce(){
 }
 
-function init(){
-	initMore();
-	initProfileViewer();
-	initProgressBar();
-	initAjax();
+function init(container){
+	initMore(container);
+	initProfileViewer(container);
+	initProgressBar(container);
+	initAjax(container);
 }
 
 
-function initAjax(){
-	$('a.ajax').click(function(){
+function initAjax(container){
+	$('a.ajax', container).click(function(){
 		var url = $(this).attr('href');
 		BlueApp.routers.Main.navigate(url, {trigger: true});
 		return false;

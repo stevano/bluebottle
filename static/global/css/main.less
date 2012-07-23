@@ -221,16 +221,6 @@ body {
     margin: 4px;
     font-size: 0.8em;
   }
-  ul.list {
-    list-style: none;
-    padding: 0px;
-    margin: 0px;
-    li {
-      padding: 4px 2px;
-      margin: 0px;
-      border-bottom: 1px solid @green;
-    }
-  }
 }
 
 .progressbar {
@@ -322,3 +312,39 @@ body {
   font-weight: bold;
 }
 
+.results {
+  ul.list li {
+    float: left;
+    width: 225px;
+    margin: 7px 7px 0px 0px;
+    .title,
+    .support {
+      font-size: 0.8em;
+      color: @white;
+      padding: 8px 8px 4px;
+    }
+    .title {
+      height: 80px;
+      background-color: @green;
+      font-weight: bold;
+      overflow: hidden;
+      a {
+        color: @white;
+      }
+      h3 {
+        text-transform: uppercase;
+        font-family: @futura;
+        padding: 0px;
+      }
+    }
+    .support {
+      text-align: center;
+      text-transform: uppercase;
+      font-family: @futura;
+      background-color: @pink;
+    }
+    .progressbar {
+      font-size: 0.8em;  
+    }
+  }
+}

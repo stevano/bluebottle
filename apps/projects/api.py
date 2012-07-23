@@ -16,6 +16,12 @@ class ProjectResource(ModelResource):
 #    resultsphase = fields.OneToOneField(
 #                'projects.api.ResultsPhaseResource', 'resultsphase', full=False)
 
+    def dehydrate(self, bundle):
+        bundle.data['description'] = bundle.obj.ideaphase.description
+        bundle.data['money_donated'] = bundle.obj.money_donated()
+        bundle.data['money_asked'] = bundle.obj.money_asked()
+        return bundle
+
     class Meta:
         queryset = Project.objects.filter(phase='plan').all()
         list_allowed_methods = ['get']
