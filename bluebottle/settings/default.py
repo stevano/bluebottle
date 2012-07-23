@@ -200,6 +200,9 @@ INSTALLED_APPS = [
     'django_countries', # http://pypi.python.org/pypi/django-countries
     'sorl.thumbnail',
 
+    'devserver',
+
+
     # bluebottle apps
     'apps.bluebottle_utils',
     'apps.accounts',

@@ -17,9 +17,15 @@ class ProjectResource(ModelResource):
 #                'projects.api.ResultsPhaseResource', 'resultsphase', full=False)
 
     class Meta:
-        queryset = Project.objects.select_related('IdeaPhase').filter(phase='plan').all()
-        authentication = BasicAuthentication()
+        queryset = Project.objects.filter(phase='plan').all()
+        list_allowed_methods = ['get']
+        detail_allowed_methods = ['get']
+        #authentication = BasicAuthentication()
         authorization = DjangoAuthorization()
+        filtering = {
+             "latitude": ('gte', 'lte'),
+             "longitude": ('gte', 'lte')
+        }
 
 
 class IdeaPhaseResource(ModelResource):

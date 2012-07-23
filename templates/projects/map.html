@@ -11,11 +11,12 @@
 {% block content %}
 	<div class="row">
   		<div class="column grid_3">
-			<div id="bigmap">
-				
-			</div>
-			<a href="" for="pictures" class="active panelink">ALL PROJECTS</a>
-			<a href="" for="videos" class="panelink">FUNDING NEEDED</a>
+  			<div class="relative">
+				<div id="bigmap"></div>
+				<div id="maploading" class="hidden">LOADING PROJECTS</div>
+				<a href="" for="pictures" class="active panelink">ALL PROJECTS</a>
+				<a href="" for="videos" class="panelink">FUNDING NEEDED</a>
+  			</div>
   		</div>
   		<div class="column grid_1">
 			{% include "projects/small.html" %}  			
@@ -24,103 +25,14 @@
   		</div>
 	</div>
 	
+	<script type="text/javascript" src="/static/assets/global/js/bluemap.js"></script>
+
 	<script type="text/javascript">
-		var mapStyle = [
-		  {
-		    featureType: "administrative.country",
-		    elementType: "geometry",
-		    stylers: [
-		      { color: "#FFFFFF" },
-		      { weight: 1 },
-		      { lightness: 1 },
-		    ]
-		  },{
-		    elementType: "labels.text.stroke",
-		    stylers: [
-		      { color: "#FFFFFF" },
-		      { weight: 2 },
-		      { lightness: 1 }
-		    ]
-		  },{
-		    elementType: "labels.text.fill",
-		    stylers: [
-		      { color: "#000000" },
-		      { weight: 1 },
-		      { lightness: 1 },
-		    ]
-		  },{
-		    featureType: "road",
-		    elementType: "geometry",
-		    stylers: [
-		      { color: "#333333" },
-		      { lightness: 30 }
-		    ]
-		  },{
-		    featureType: "poi",
-		    elementType: "geometry.fill",
-		    stylers: [
-		      { color: "#00C051" }
-		    ]
-		  },{
-		    featureType: "landscape",
-		    elementType: "geometry.fill",
-		    stylers: [
-		      { color: "#00C051" }
-		    ]
-		  },{
-		    featureType: "water",
-		    stylers: [
-		      { color: "#FEAAC7" },
-		      { color: "#99EEBB" },
-		    ]
-		  },{
-		  }
-		];
-
-		var OnePercentMapType = new google.maps.StyledMapType(mapStyle, {name: '1%COLORS'});
-	
-	
-		var ONEPERCENT_MAP_TYPE = '1pct';
-	
-		$('#bigmap').gmap({
-			zoom: 5, 
-			center: '{{ project.latitude }},{{ project.longitude }}',
- 		 	mapTypeControl: true,
-		    zoomControl: true,
- 			panControl: false,
-		    scaleControl: true,	
-		    streetViewControl: false,
-		 	zoomControlOptions: {
-			    style: google.maps.ZoomControlStyle.SMALL
-  			},
-  			mapTypeControlOptions: {
-       			mapTypeIds: [
-       					google.maps.MapTypeId.ROADMAP, 
-       					google.maps.MapTypeId.TERRAIN, 
-       					google.maps.MapTypeId.SATELLITE, 
-       					google.maps.MapTypeId.HYBRID, 
-       					ONEPERCENT_MAP_TYPE
-       				]
-    		},
-    		mapTypeId: ONEPERCENT_MAP_TYPE,  			
-			callback: function(){
-				var self = this;
-				var map = self.get('map');
-				map.mapTypes.set('1pct', OnePercentMapType);			
-				
-				var green_icon = new google.maps.MarkerImage('/static/assets/global/images/icons/1pct_pointer_pink.png',
-			      new google.maps.Size(30, 30),
-			      new google.maps.Point(0,0),
-			      new google.maps.Point(7, 32));
-				var shadow = new google.maps.MarkerImage('/static/assets/global/images/icons/1pct_pointer_shadow.png',
-				  new google.maps.Size(55, 30),
-			      new google.maps.Point(0,0),
-				  new google.maps.Point(7, 30))
-	
-				self.addMarker({'position': map.getCenter(), icon: green_icon, shadow: shadow});
-
-			}
-		});
+		var map = new BlueMap('bigmap', {
+				slug: '{{ project.slug}}', 
+				latitude: '{{ project.latitude }}',
+				longitude: '{{ project.longitude }}'
+			});
 	</script>
 
 {% endblock %}

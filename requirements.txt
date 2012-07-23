@@ -40,3 +40,6 @@ south==0.7.5
 
 # Tastypie, for the API!
 django-tastypie
+
+
+django-devserver

@@ -11,7 +11,7 @@
 	</ul>
 	<div id="mymenu">
 	    {% if user.is_authenticated %}
-	    	{{ user.username }} 
+	    	{{ user.username|upper }} |
 		    <a href="{% url 'logout' %}?next={% firstof request.path "/" %}">LOG OUT</a>
 	    {% else %}
 		    <a href="{% url 'login' %}?next={% firstof request.path "/" %}">LOG IN</a>

@@ -36,8 +36,8 @@ function initMore(){
 	});
 	$('.less').unbind('click');
 	$('.less').click(function(){
-		$(this).parent().parent()('p').children('.long').hide();
-		$(this).parent().parent()('p').children('.short').show();
+		$(this).parent().parent().find('.long').hide();
+		$(this).parent().parent().find('.short').show();
 		return false;
 	});
 	
