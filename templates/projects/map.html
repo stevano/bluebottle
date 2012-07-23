@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% load thumbnail %}
+
+{% block htmltitle %}{{ block.super }} | {{ project }}{% endblock %}
+
+{% block htmlheader %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+  		<div class="column grid_3">
+			<div id="bigmap">
+				
+			</div>
+			<a href="" for="pictures" class="active panelink">ALL PROJECTS</a>
+			<a href="" for="videos" class="panelink">FUNDING NEEDED</a>
+  		</div>
+  		<div class="column grid_1">
+			{% include "projects/small.html" %}  			
+			{% include "projects/widgets/funding_needed.html" %}  			
+  			
+  		</div>
+	</div>
+	
+	<script language="javascript">
+		var mapStyle = [
+		  {
+		    featureType: "administrative.country",
+		    elementType: "geometry",
+		    stylers: [
+		      { color: "#FFFFFF" },
+		      { weight: 1 },
+		      { lightness: 1 },
+		    ]
+		  },{
+		    elementType: "labels.text.stroke",
+		    stylers: [
+		      { color: "#FFFFFF" },
+		      { weight: 2 },
+		      { lightness: 1 }
+		    ]
+		  },{
+		    elementType: "labels.text.fill",
+		    stylers: [
+		      { color: "#000000" },
+		      { weight: 1 },
+		      { lightness: 1 },
+		    ]
+		  },{
+		    featureType: "road",
+		    elementType: "geometry",
+		    stylers: [
+		      { color: "#333333" },
+		      { lightness: 30 }
+		    ]
+		  },{
+		    featureType: "poi",
+		    elementType: "geometry.fill",
+		    stylers: [
+		      { color: "#00C051" }
+		    ]
+		  },{
+		    featureType: "landscape",
+		    elementType: "geometry.fill",
+		    stylers: [
+		      { color: "#00C051" }
+		    ]
+		  },{
+		    featureType: "water",
+		    stylers: [
+		      { color: "#FEAAC7" },
+		      { color: "#99EEBB" },
+		    ]
+		  },{
+		  }
+		];
+	
+	
+	
+		$('#bigmap').gmap({
+			styles: mapStyle,
+			zoom: 5, 
+			center: '{{ project.latitude }},{{ project.longitude }}',
+ 		 	mapTypeControl: true,
+		    mapTypeControlOptions: {
+		      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+		    },
+		    zoomControl: true,
+		 	zoomControlOptions: {
+			    style: google.maps.ZoomControlStyle.SMALL
+  			},
+			callback: function(){
+				
+				
+				var green_icon = new google.maps.MarkerImage('/static/assets/global/images/icons/1pct_pointer_pink.png',
+			      new google.maps.Size(30, 30),
+			      new google.maps.Point(0,0),
+			      new google.maps.Point(7, 32));
+				var shadow = new google.maps.MarkerImage('/static/assets/global/images/icons/1pct_pointer_shadow.png',
+				  new google.maps.Size(55, 30),
+			      new google.maps.Point(0,0),
+				  new google.maps.Point(7, 30))
+	
+				var self = this;
+				var map = self.get('map');
+				self.addMarker({'position': map.getCenter(), icon: green_icon, shadow: shadow});
+
+			}
+		});
+	</script>
+
+{% endblock %}

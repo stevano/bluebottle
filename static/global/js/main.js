@@ -1,9 +1,29 @@
 $(document).ready(function(){
+	initOnce();
+	init();
+});
+
+function initOnce(){
+	
+}
+
+function init(){
 	initMore();
 	initProfileViewer();
 	initProgressBar();
-});
+	initAjax();
+}
 
+function initAjax(){
+	$('a.ajax').unbind('click');
+	$('a.ajax').click(function(){
+		var url = $(this).attr('href');
+		$('#toppanel').load(url, function(){
+			init();
+		});
+		return false;
+	});
+}
 
 function initMore(){
 	$('.more').each(function(){
@@ -12,11 +32,13 @@ function initMore(){
 			$(this).hide();
 		}
 	});
+	$('.more').unbind('click');
 	$('.more').click(function(){
 		$(this).parent().parent().find('.long').show();
 		$(this).parent().parent().find('.short').hide();
 		return false;
 	});
+	$('.less').unbind('click');
 	$('.less').click(function(){
 		$(this).parent().parent()('p').children('.long').hide();
 		$(this).parent().parent()('p').children('.short').show();
@@ -27,7 +49,8 @@ function initMore(){
 
 
 function initProfileViewer(){
-	$('.panelink').click(function(){
+	$('.panelink').unbind('mouseover');
+	$('.panelink').mouseover(function(){
 		var name = $(this).attr('for');
 		$(this).parent().find('.pane').hide();
 		$(this).parent().find('.' + name).show();
