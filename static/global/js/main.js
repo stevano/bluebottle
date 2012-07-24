@@ -1,9 +1,6 @@
 $(document).ready(function(){
-	initOnce();
 	init();
 });
-function initOnce(){
-}
 
 function init(container){
 	initMore(container);
@@ -85,4 +82,3 @@ function initProgressBar(){
 			
 	});
 }
-

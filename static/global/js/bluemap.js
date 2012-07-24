@@ -208,4 +208,7 @@ this.BlueMap = function(elementId, project){
 };
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> project_detail

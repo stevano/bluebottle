@@ -1,24 +1,28 @@
 from tastypie.resources import ModelResource
 from tastypie import fields, utils
-from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import DjangoAuthorization
 
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase
 
-
-# TODO: Change this resource so it returns members (Duh!)
-class ProjectMembersResource(ModelResource):
-
+class ResourceBase(ModelResource):
     class Meta:
-        queryset = Project.objects.filter(phase='plan').all()
+        authorization = DjangoAuthorization()
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
-        authorization = DjangoAuthorization()
+
+# TODO: Change this resource so it returns members (Duh!)
+class ProjectMembersResource(ResourceBase):
+
+    class Meta:
+        queryset = Project.objects.filter(phase='plan').all()
 
 
 
-class ProjectResource(ModelResource):
+class ProjectResource(ResourceBase):
+# Might want to use this later
+# However it does not work if the related Phasedoesn't exist...
+#
 #    ideaphase = fields.OneToOneField(
 #                 'apps.projects.api.IdeaPhaseResource', 'ideaphase', full=True)
 #    planphase = fields.OneToOneField(
@@ -37,10 +41,6 @@ class ProjectResource(ModelResource):
 
     class Meta:
         queryset = Project.objects.filter(phase='plan').all()
-        list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
-        #authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
         filtering = {
              "latitude": ('gte', 'lte'),
              "longitude": ('gte', 'lte'),
@@ -48,39 +48,31 @@ class ProjectResource(ModelResource):
         }
 
 
-class IdeaPhaseResource(ModelResource):
+class IdeaPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = IdeaPhase.objects.select_related('IdeaPhase').all()
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
 
 
-class PlanPhaseResource(ModelResource):
+class PlanPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = PlanPhase.objects.all()
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
 
 
-class ActPhaseResource(ModelResource):
+class ActPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = ActPhase.objects.all()
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
 
 
-class ResultsPhaseResource(ModelResource):
+class ResultsPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = ResultsPhase.objects.all()
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
 
 

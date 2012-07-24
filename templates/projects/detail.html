@@ -14,13 +14,13 @@
   		<div class="column grid_2">
 			<h4>Project</h4>
 			<h1>{{ project.title }}</h1>
-			
+
 			<h4>Organization</h4>
 			<p>{{ project.organization.name }}</p>
-			
+
 			<h4>Location</h4>
 			<p>{{ project.location }}</p>
-			
+
 			<h4>Costs</h4>
 			<p>&euro; {{ project.money_asked }}</p>
 
@@ -32,7 +32,14 @@
 					<li><i>none</i></li>
 				{% endfor %}
 			</ul>
-			
+
+            <h4>Supporters</h4>
+            <ul>
+                    {% for supporter in project.get_supporters %}
+                            <li>{{ supporter }}</li>
+                    {% endfor %}
+            </ul>
+
 			<h4>Description</h4>
 			<p>
 				<span class="short">
@@ -59,27 +66,10 @@
 
   		</div>
   		<div class="column grid_1">
-			{% include "projects/phases.html" %}  			
-  			<br />
+			{% include "projects/widgets/phases.html" %}
+			<br />  			
 			{% include "projects/widgets/funding_needed.html" %}  			
-  			
   		</div>
 	</div>
-
-	<script type="text/javascript">
-		$(document).ready(function(){
-			BlueApp.views.load([
-				{
-					container: '#midpanel',
-					//method: 'replace',
-					//lifetime: 60,
-					'widgets' : [ 
-							{name: 'ProjectMembers'}
-						]
-				}
-			]);	
-			
-		})
-			</script>
 
 {% endblock %}

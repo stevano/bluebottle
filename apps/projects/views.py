@@ -8,11 +8,11 @@ class ProjectViewBase(object):
 
 
 class ProjectListView(ProjectViewBase, ListView):
-    pass
+    template_name = 'projects/list.html'
 
 
 class ProjectDetailView(ProjectViewBase, DetailView):
-    pass
+    template_name = 'projects/detail.html'
 
 
 class ProjectMapView(ProjectViewBase, DetailView):
@@ -22,7 +22,7 @@ class ProjectMapView(ProjectViewBase, DetailView):
 class ProjectPicturesView(ProjectViewBase, DetailView):
     template_name = "projects/pictures.html"
 
+
 class ProjectSearchView(ProjectViewBase, ListView):
     template_name = "projects/search.html"
-
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.contrib.auth.models import User
 import random
 
 from django_countries import CountryField
@@ -9,6 +10,8 @@ from django_extensions.db.fields import (
     ModificationDateTimeField, CreationDateTimeField
 )
 from sorl.thumbnail import ImageField
+
+from apps.bluebottle_utils.fields import MoneyField
 
 
 class ProjectCategory(models.Model):
@@ -54,8 +57,8 @@ class Project(models.Model):
 
     country = CountryField(null=True)
     # Location of this project
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.DecimalField(max_digits=12, decimal_places=8)
+    longitude = models.DecimalField(max_digits=12, decimal_places=8)
 
     project_language = models.CharField(max_length=6,
         choices=settings.LANGUAGES,
@@ -65,9 +68,33 @@ class Project(models.Model):
     # CHange this to the description of the active phase
     def description(self):
         return self.planphase.description
-    
+
     # temporary to do random donated thing 
     donated = 0
+
+    def __unicode__(self):
+        if self.title:
+            return self.title
+        return self.slug
+
+    """ Money asked, rounded to the lower end """
+    def money_asked(self):
+        return int(float(self.planphase.money_asked) - 0.45)
+
+    """ Money donated. For now this is random """
+    """ TODO: connect this to actual donations. Duh! """
+    def money_donated(self):
+        if self.donated == 0:
+            self.donated = int(random.randrange(5, self.money_asked()))
+        return self.donated
+
+    def money_donated_percentage(self):
+        if self.money_asked() == None:
+            return 0
+        return int(100 * (float(self.money_donated()) / float(self.money_asked())))
+
+    def money_needed(self):
+        return self.money_asked() - self.money_donated()
 
     def __unicode__(self):
         if self.title:
@@ -101,9 +128,17 @@ class Project(models.Model):
     def get_absolute_url(self):
         """ Get the URL for the current project. """
 
-        return ('project_detail', (), {
+        return ('detail', (), {
             'slug': self.slug
         })
+
+    def get_supporters(self):
+        """ Get a queryset of donating users for this project. """
+
+        # TODO: Add filter for 'succesful' donations on a somewhat higher
+        # level, perhaps a custom Manager on Donation/DonationLine classes.
+
+        return User.objects.filter(donation__donationline__project=self)
 
     class Meta:
         ordering = ['title']
@@ -147,9 +182,9 @@ class PlanPhase(AbstractPhase):
         waiting = ChoiceItem('waiting', label=_("Waiting"))
         completed = ChoiceItem('completed', label=_("Completed"))
 
-    money_total = models.DecimalField(max_digits=9, decimal_places=2,
+    money_total = MoneyField(_('money total'),
         help_text=_("Total amount needed for this project."))
-    money_asked = models.DecimalField(max_digits=9, decimal_places=2,
+    money_asked = MoneyField(_('money asked'),
         help_text=_("Amount asked for from this website."))
 
     what = models.TextField(
@@ -232,7 +267,7 @@ class BudgetLine(models.Model):
     project = models.ForeignKey(Project)
     category = models.ForeignKey(BudgetCategory)
     description = models.TextField(blank=True)
-    money_amount = models.DecimalField(max_digits=9, decimal_places=2)
+    money_amount = MoneyField()
 
 
 class OtherSourcesLines(models.Model):
@@ -253,7 +288,7 @@ class OtherSourcesLines(models.Model):
         help_text=_("Who's giving the money."))
 
     description = models.TextField(blank=True)
-    money_amount = models.DecimalField(max_digits=9, decimal_places=2)
+    money_amount = MoneyField()
     status = models.CharField(max_length=20, choices=Statuses.choices)
 
 

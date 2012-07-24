@@ -208,6 +208,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.organizations',
     'apps.projects',
+    'apps.donations'
 ]
 
 # A sample logging configuration. The only tangible logging
