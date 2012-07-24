@@ -6,6 +6,18 @@ from tastypie.authorization import DjangoAuthorization
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase
 
 
+# TODO: Change this resource so it returns members (Duh!)
+class ProjectMembersResource(ModelResource):
+
+    class Meta:
+        queryset = Project.objects.filter(phase='plan').all()
+        list_allowed_methods = ['get']
+        detail_allowed_methods = ['get']
+
+        authorization = DjangoAuthorization()
+
+
+
 class ProjectResource(ModelResource):
 #    ideaphase = fields.OneToOneField(
 #                 'apps.projects.api.IdeaPhaseResource', 'ideaphase', full=True)
@@ -31,7 +43,8 @@ class ProjectResource(ModelResource):
         authorization = DjangoAuthorization()
         filtering = {
              "latitude": ('gte', 'lte'),
-             "longitude": ('gte', 'lte')
+             "longitude": ('gte', 'lte'),
+             "title": ('startswith', 'contains')
         }
 
 

@@ -13,6 +13,13 @@ BlueApp.views.add('About');
 
 BlueApp.views.add('New', {tpl: 'About'});
 
+BlueApp.views.addList('ProjectMembers', {
+	resource: 'ProjectMembers',
+	itemView: 'MemberListItem',	
+    url: '/projects/api/projectmembers/',
+});
+
+
 BlueApp.views.add('Project');
 
 

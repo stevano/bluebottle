@@ -140,7 +140,8 @@ this.BlueMap = function(elementId, project){
 	
 	/**
 	 * Load projects for the current viewport
-	 * Extra filters can be given through 'filters' (as urlencoded getparams)
+	 * Extra filters can be given through 'filters' 
+	 * filters as objects {title_startswith: 'a'} 
 	 */
 	this.loadProjects = function(filters) {
 
@@ -165,7 +166,6 @@ this.BlueMap = function(elementId, project){
 			$('#maploading').hide();
 			var projects = data.objects;
 			for (i in projects) {
-				console.log(projects[i].latitude + " : " + projects[i].longitude);
 				var pos = new google.maps.LatLng(projects[i].latitude, projects[i].longitude);
 				if (projects[i].slug == my.project.slug) {
 					 var marker = new google.maps.Marker({
