@@ -1,21 +1,16 @@
 <div class="progress widget">
 	<h3 class="title light">Crowdfunding needed</h3>
+	
 	<div class="progressbar">
-		{% if  project.money_donated_percentage > 40 %}
-			<div class="amount-donated right" style="margin-right: {% widthratio project.money_needed project.money_asked 100 %}%">
-				Now: <b>&euro;{{ project.money_donated }}</b>  						
-			</div>
-		{% else %}
-			<div class="amount-donated left" style="margin-left: {% widthratio project.money_donated project.money_asked 100 %}%">
-				Now: <b>&euro;{{ project.money_donated }}</b>					
-			</div>
-		{% endif %}
-		<div class="asked">
-			<div class="donated" style="width:{% widthratio project.money_donated project.money_asked 100 %}%"></div>
+		<div class="donated-text" style="margin-left: 0px; opacity: 1; ">
+			Now: <b>&euro;<span class="donated-amount">{{ project.money_donated }}</span></b>					
 		</div>
-		<div class="amount-asked">
-			Needed: <b>&euro;{{ project.money_asked }}</b>
+		<div class="asked-bar">
+			<div class="donated-bar" style="width:0px; "></div>
 		</div>
-	</div>
+		<div class="asked-text">
+			Needed: <b>&euro;<span class="asked-amount">{{ project.money_asked }}</span></b>
+		</div>
+	</div>	
 	<h3 class="link"><div class="icon love"></div>Support this Project</h3>
 </div>

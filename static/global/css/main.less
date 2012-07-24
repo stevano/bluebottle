@@ -227,20 +227,21 @@ body {
   background-color: @midgray;
   position: relative;
   padding: 20px 10px;
-  .asked {
+  .asked-bar {
     height: 10px;
     background-color: @lightgreen;
     position: relative;
   }
-  .donated {
+  .donated-bar {
     top: 0px;
     left: 0px;
     height: 10px;
     position: absolute;
     background-color: @green;
+    border-right: 1px solid @green;
   }
 
-  .amount-donated.right {
+  .donated-text.right {
     color: @green;
     border-right: 1px solid @green;
     padding: 0px 4px 4px;
@@ -249,14 +250,14 @@ body {
     
   }
   
-  .amount-donated.left {
+  .donated-text.left {
     margin-left: -1px;
     color: @green;
     border-left: 1px solid @green;
     padding: 0px 4px 4px;
   }
   
-  .amount-asked {
+  .asked-text {
     color: @green;
     text-align: right;
   }

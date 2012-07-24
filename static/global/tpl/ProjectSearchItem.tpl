@@ -4,19 +4,19 @@
 <div class="title">
 	<a href="/projects/<%= slug %>/" class="ajax">
 	    <h3><%= title %></h3>
-	    <%= description %>
+	    <%= location %>
 	</a>
 </div>
 
 <div class="progressbar">
-	<div class="amount-donated left" style="margin-left: 25%; opacity: 1; ">
-		Now: <b>&euro;<%= money_donated %></b>					
+	<div class="donated-text" style="margin-left: 0px; opacity: 1; ">
+		Now: <b>&euro;<span class="donated-amount"><%= money_donated %></span></b>					
 	</div>
-	<div class="asked">
-		<div class="donated" style="width: 51px; "></div>
+	<div class="asked-bar">
+		<div class="donated-bar" style="width:0px; "></div>
 	</div>
-	<div class="amount-asked">
-		Needed: <b>&euro;<%= money_asked %></b>
+	<div class="asked-text">
+		Needed: <b>&euro;<span class="asked-amount"><%= money_asked %></span></b>
 	</div>
 </div>
 <div class="support">

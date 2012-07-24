@@ -61,6 +61,10 @@ class Project(models.Model):
         choices=settings.LANGUAGES,
         help_text=_("Main language of the project."))
 
+
+    # CHange this to the description of the active phase
+    def description(self):
+        return self.planphase.description
     
     # temporary to do random donated thing 
     donated = 0

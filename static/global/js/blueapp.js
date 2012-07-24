@@ -29,7 +29,7 @@ BlueApp.views.addList('SearchProjects', {
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
     order: 'title',
-    tpl: 'ProjectSearch'
+    tpl: 'ProjectSearch',
 });
 
 
