@@ -14,17 +14,27 @@
 			BlueApp.views.load([
 				{
 					container: '#midpanel',
+					wrapper: 'div',
+					className: 'row',
 					//method: 'replace',
 					//lifetime: 60,
 					'widgets' : [ 
 						{
-							name: 'SearchProjects',
+							name: 'ProjectsSearchResults',
+							wrapper: 'div',
+							className: 'column grid_3 searchResults'
 							//lifetime: 60,
-						}]
+						},
+						{
+							name: 'ProjectSearchForm',
+							wrapper: 'div',
+							className: 'column black grid_1'
+						}
+						]
 				}
 			]);	
 			
-		})
+		});
 		
 	</script>
 	
