@@ -5,11 +5,12 @@ from django.contrib.auth.models import User
 import random
 
 from django_countries import CountryField
-from djchoices import DjangoChoices, ChoiceItem
 from django_extensions.db.fields import (
     ModificationDateTimeField, CreationDateTimeField
 )
+from djchoices import DjangoChoices, ChoiceItem
 from sorl.thumbnail import ImageField
+from taggit.managers import TaggableManager
 
 from apps.bluebottle_utils.fields import MoneyField
 
@@ -55,15 +56,17 @@ class Project(models.Model):
     created = CreationDateTimeField(
         help_text=_("When this project was created."))
 
-    country = CountryField(null=True)
     # Location of this project
     latitude = models.DecimalField(max_digits=12, decimal_places=8)
     longitude = models.DecimalField(max_digits=12, decimal_places=8)
+
+    country = CountryField(null=True)
 
     project_language = models.CharField(max_length=6,
         choices=settings.LANGUAGES,
         help_text=_("Main language of the project."))
 
+    tags = TaggableManager(blank=True)
 
     # CHange this to the description of the active phase
     def description(self):
@@ -77,21 +80,16 @@ class Project(models.Model):
             return self.title
         return self.slug
 
-    """ Money asked, rounded to the lower end """
     def money_asked(self):
-        return int(float(self.planphase.money_asked) - 0.45)
+        return int(self.planphase.money_asked)
 
-    """ Money donated. For now this is random """
-    """ TODO: connect this to actual donations. Duh! """
+    """ Money donated, rounded to the lower end... """
+    # Money donated. For now this is random
+    # TODO: connect this to actual donations. Duh!
     def money_donated(self):
         if self.donated == 0:
             self.donated = int(random.randrange(5, self.money_asked()))
-        return self.donated
-
-    def money_donated_percentage(self):
-        if self.money_asked() == None:
-            return 0
-        return int(100 * (float(self.money_donated()) / float(self.money_asked())))
+        return int(self.donated)
 
     def money_needed(self):
         return self.money_asked() - self.money_donated()
@@ -337,3 +335,4 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['-created']
+
