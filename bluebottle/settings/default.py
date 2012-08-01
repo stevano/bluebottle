@@ -201,9 +201,6 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'taggit',
 
-    'devserver',
-
-
     # bluebottle apps
     'apps.bluebottle_utils',
     'apps.accounts',
