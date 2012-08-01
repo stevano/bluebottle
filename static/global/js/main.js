@@ -58,8 +58,8 @@ function initProfileViewer() {
 	});
 }
 
-function initProgressBar() {
-	$('.progressbar').each(function() {
+function initProgressBar(container) {
+	$('.progressbar', container).each(function() {
 		var pb = $(this);
 		var donated = pb.find('.donated-amount').html();
 		var asked = pb.find('.asked-amount').html();

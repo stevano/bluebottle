@@ -12,22 +12,38 @@
     Bluebone.views = {};
     Bluebone.templates = {};
     Bluebone.snippets = {};
+    
+    // Function to run after HTML is rendered
+    Bluebone.afterRender; 
+
+
+	/* ERRORS */
+	// Have one place to decide what to do with error messages.
+	// In production we might not want to write those to console.
+	Bluebone.throwError = function(message, level) {
+		if (undefined == level) {
+			level = 'ERROR';
+		}
+		console.log(level + ': ' + message);
+		return false;
+	} 
+	
 
 
     /* MODELS */
 
     // Shortcut to load a model class
-    Bluebone.models.get = function(model) {
+    Bluebone.getModels = function(model) {
         if (undefined === Bluebone.models[model]) {
-            console.log('Model [' + model + '] not defined.');
+            Bluebone.throwError('Model [' + model + '] not defined.');
         }
         return Bluebone.models[model];
     };
 
     // Add a Collection with REST connection for a given name
-    Bluebone.models.newApiCollection = function(name, cfg) {
+    Bluebone.addCollection = function(name, cfg) {
         if (undefined == cfg || undefined == cfg.url) {
-            console.log('Need some configuration to set a resource. Trye {url: <apiUrl>}');
+            Bluebone.throwError('Need some configuration to set a resource. Trye {url: <apiUrl>}');
         }
         if (undefined == cfg.method) {
             cfg.method = 'rest'
@@ -37,14 +53,11 @@
     };
 
     /* TEMPLATES */
-
     // Load a template either from memory or through ajax
-    Bluebone.templates.load = function(name, callback) {
+    Bluebone.loadTemplate = function(name, callback) {
         if (undefined == Bluebone.templates[name]) {
-            console.log('Load template: ' + name);
             $.get('/static/assets/global/tpl/' + name + '.tpl', function(data) {
                 Bluebone.templates[name] = data;
-                //console.log(Bluebone.templates[name]);
                 callback(data);
             });
         } else {
@@ -52,48 +65,25 @@
         }
 
     }
-
-    /* SNIPPETS */
-
-    // Load a html snippets either from memory or through ajax
-    Bluebone.snippets.load = function(url, callback) {
-    	var name = url.replace(/\//g, ".");
-        if (undefined == Bluebone.templates[name]) {
-            console.log('Load template: ' + name + ' : ' + url);
-            $.get(url, function(data) {
-                Bluebone.templates[name] = data;
-                //console.log(Bluebone.templates[name]);
-                callback(data);
-            });
-        } else {
-            callback(Bluebone.templates[name]);
-        }
-
-    }
-
 
     /* VIEWS */
-
-
     // We set a standard behavior for our Views
     Bluebone.View = Backbone.View.extend({
-
         initialize: function() {
             return this;
         },
-
         renderTo: function(el, model) {
             var self = this;
-            Bluebone.templates.load(this.tpl, function(template){
+            Bluebone.loadTemplate(this.tpl, function(template){
                 if (undefined == model) {
                     $(el).html(template);
-	                if (undefined != Bluebone.views.callback) {
-	                	Bluebone.views.callback(el);
+	                if (undefined != Bluebone.afterRender) {
+	                	Bluebone.afterRender(el);
 	                }
                 } else {
                     $(el).html(_.template(template, model.attributes));
-	                if (undefined != Bluebone.views.callback) {
-	                	Bluebone.views.callback(el);
+	                if (undefined != Bluebone.afterRender) {
+	                	Bluebone.afterRender(el);
 	                }
                 }
             });
@@ -101,63 +91,39 @@
         },
 
     });
-
-
 	
     // Get a view from views array
-    Bluebone.views.get = function(view) {
+    Bluebone.getView = function(view) {
         if (undefined === Bluebone.views[view]) {
-            console.log('View [' + view + '] not loaded!');
+            Bluebone.throwError('View [' + view + '] not loaded!');
         }
         return Bluebone.views[view];
     };
 
     // Add a view to views array
-    Bluebone.views.add = function(name, cfg) {
+    Bluebone.addView = function(name, cfg) {
         if (undefined == cfg) {
             cfg = {};
         }
+        // Use the same 'name' for template if none set.
         if (undefined === cfg.tpl) {
             cfg.tpl = name;
         }
+        // Initiate the view
         Bluebone.views[name] = new (Bluebone.View.extend(cfg));
     };
-
-
-	// Special view for loading HTML snippets
-    Bluebone.snippets.View = new (Backbone.View.extend({
-
-        initialize: function() {
-            return this;
-        },
-
-        renderTo: function(el, url) {
-            var self = this;
-            Bluebone.snippets.load(url, function(html){
-                $(el).html(html);
-                if (undefined != Bluebone.snippets.callback) {
-                	Bluebone.snippets.callback(el);
-                }
-            });
-            return this;
-        },
-
-    }));
-
-	Bluebone.snippets.renderTo = function(el, url){
-		Bluebone.snippets.View.renderTo(el, url);
+    
+    // Set the callback function to call after a view/snippet is rendered
+    // This in mainly to run animations and other events on the 
+    // the rendered HTML.
+	Bluebone.setAfterRender = function(func) {
+		Bluebone.afterRender = func;
 	}
 
-	Bluebone.snippets.setCallback = function(func) {
-		Bluebone.snippets.callback = func;
-	}
-
-	Bluebone.views.setCallback = function(func) {
-		Bluebone.views.callback = func;
-	}
-
-
-    Bluebone.views.addList = function(name, cfg) {
+	// Add a list view 
+	// This will load a view for the list and a view for 
+	// list items.
+    Bluebone.addListView = function(name, cfg) {
         if (undefined == cfg) {
             var cfg = {};
         }
@@ -167,20 +133,31 @@
         if (undefined == cfg.tpl) {
             cfg.tpl = name
         }
+        if (undefined == cfg.resource) {
+            cfg.resource = name
+        }
         var itemCfg = {tpl: cfg.itemView};
         Bluebone.views[cfg.itemView] = new(Bluebone.ListItemView.extend(itemCfg));
         Bluebone.views[name] = new(Bluebone.Listview.extend(cfg));
     }
 
 
-
     // Create a view with a list of items
-    // specify a api-url
+    // cfg will need 
+    // url: Url to the API
+    // resource: a name for the resource
     Bluebone.Listview = Bluebone.View.extend({
         class: 'list',
         initialize: function() {
+        	if (undefined == this.resource) {
+        		Bluebone.throwError('We need a name for resource to initiate a ListView');
+        	}
+        	if (undefined == this.url) {
+        		Bluebone.throwError('We need a url for resource to initiate a ListView');
+        	}
+        	// Add a collection
             var collectionName = this.resource + 'Collection';
-            this.collection = Bluebone.models.newApiCollection(collectionName, {test: 'test', url: this.url});
+            this.collection = Bluebone.addCollection(collectionName, {url: this.url});
             return this;
         },
         renderTo: function(el, params) {
@@ -192,7 +169,7 @@
         	}
             var thisView = this;
             var ul = $('<ul></ul>').addClass(thisView.class);
-            Bluebone.templates.load(thisView.tpl, function(template){
+            Bluebone.loadTemplate(thisView.tpl, function(template){
                 $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html()}));
             });
             this.collection.fetch({
@@ -200,17 +177,17 @@
                 success: function(){
                     var items = thisView.collection.models;
                     // Get the template for ListItems
-                    Bluebone.templates.load(thisView.itemView, function(template){
+                    // Rather do it here than in ItenView, so it's only loaded once
+                    Bluebone.loadTemplate(thisView.itemView, function(template){
                         for (item in items) {
-                            Bluebone.views.get(thisView.itemView).render(template, items[item], function(item){
+                            Bluebone.getView(thisView.itemView).render(template, items[item], function(item){
                                 var li = $('<li />').append(item);
                                 $('ul.' + thisView.class, el).append(li);
-				                if (undefined != Bluebone.views.callback) {
-				                	Bluebone.views.callback(el);
-				                }
                             })
-
                         }
+		                if (undefined != Bluebone.afterRender) {
+		                	Bluebone.afterRender(el);
+		                }
                     });
                 }
             });
@@ -231,18 +208,9 @@
 
 
     // Load mulitple views
-    // cfg should be in te for of :
-    // [{
-    //      view: 'RecentProjects',
-    //      container: '#midpanel'
-    //  },
-    //  {
-    //      view: 'About',
-    //      container: '#midpanel'
-    //  },
-    //]
     // 'view' is the view (view) to use
     // 'container' the DOM element to put it in
+    // 
     Bluebone.views.load = function(cfg) {
         $.each(cfg, function(i, container){
         	if (undefined == container.wrapper) {
@@ -257,17 +225,60 @@
         	}
             $.each(container.widgets, function(j, widget) {
                 if (target.children('#' + widget.name).attr('id')) {
-                    console.log('view ' + widget.name + ' already loaded...');
+                    Bluebone.throwError('view ' + widget.name + ' already loaded...', 'info');
                 } else {
                 	if (undefined == widget.className) {
                 		widget.className = 'widget';
                 	};
                     $('<div />', {class: widget.className, id: widget.name}).appendTo(target);
-                    Bluebone.views.get(widget.name).renderTo('#' + widget.name);
+                    Bluebone.getView(widget.name).renderTo('#' + widget.name);
                 }
             });
         });
     };
+    
+
+	/* SNIPPETS */
+
+	// Special view for loading HTML snippets
+    Bluebone.Snippet = new (Backbone.View.extend({
+
+        initialize: function() {
+            return this;
+        },
+
+        renderTo: function(el, url) {
+            var self = this;
+            Bluebone.loadSnippet(url, function(html){
+                $(el).html(html);
+                if (undefined !== Bluebone.afterRender) {
+                	Bluebone.afterRender(el);
+                }
+            });
+            return this;
+        },
+
+    }));
+
+
+    // Load a html snippets either from memory or through ajax
+    Bluebone.loadSnippet = function(url, callback) {
+    	var name = url.replace(/\//g, ".");
+        if (undefined == Bluebone.templates[name]) {
+            $.get(url, function(data) {
+                Bluebone.templates[name] = data;
+                callback(data);
+            });
+        } else {
+            callback(Bluebone.templates[name]);
+        }
+
+    }
+
+	Bluebone.renderSnippetTo = function(el, url){
+		Bluebone.Snippet.renderTo(el, url);
+	}
+
 
 
 }).call(this);
