@@ -97,28 +97,9 @@ class Project(models.Model):
 
     tags = TaggableManager(blank=True)
 
-<<<<<<< HEAD
     # CHange this to the description of the active phase
     def description(self):
         return self.planphase.description
-
-    # temporary to do random donated thing 
-    donated = 0
-
-    def __unicode__(self):
-        if self.title:
-            return self.title
-        return self.slug
-
-    def money_asked(self):
-        return int(self.planphase.money_asked)
-== == == =
->>>>>>> dec1b02576d2aa4a30133f7be5780774016a437d
-
-    def __unicode__(self):
-        if self.title:
-            return self.title
-        return self.slug
 
     # TODO: Have a Region/Continent her too
     def location(self):
