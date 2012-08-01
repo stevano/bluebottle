@@ -55,6 +55,44 @@ class ProjectResource(ResourceBase):
         }
 
 
+    def build_filters(self, filters=None):
+        if filters is None:
+            filters = {}
+        orm_filters = super(ProjectResource, self).build_filters(filters)
+
+        if('text' in filters):
+            """ Custom filter for free text search. """
+            query = filters['text']
+            # replaces +s with spaces due to jQuery serialize 
+            query = query.replace('+', ' ')
+            qset = (
+                    Q(title__icontains=query) |
+                    Q(actphase__description__icontains=query) |
+                    Q(planphase__description__icontains=query) |
+                    Q(planphase__what__icontains=query) |
+                    Q(planphase__goal__icontains=query) |
+                    Q(planphase__who__icontains=query) |
+                    Q(planphase__how__icontains=query) |
+                    Q(planphase__sustainability__icontains=query) |
+                    Q(planphase__target__icontains=query) |
+                    Q(slug__icontains=query)
+                    )
+            orm_filters['custom'] = qset
+
+        return orm_filters
+
+    def apply_filters(self, request, applicable_filters):
+        """ Apply custom filters """
+        if 'custom' in applicable_filters:
+            custom = applicable_filters.pop('custom')
+        else:
+            custom = None
+
+        semi_filtered = super(ProjectResource, self).apply_filters(request, applicable_filters)
+
+        return semi_filtered.filter(custom) if custom else semi_filtered
+
+
 class IdeaPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
 
