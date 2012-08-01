@@ -18,18 +18,6 @@
 			<h4>Organization</h4>
 			<p>{{ project.organization.name }}</p>
 
-			<h4>Owner</h4>
-			{% with project.owner.get_profile as owner_profile %}
-
-				{% thumbnail owner_profile.picture "72x72" crop="center" as picture %}
-					<img src="{{ picture.url }}" height="{{ picture.height }}" width="{{ picture.width }}" title="{{ owner_profile }}">
-				{% empty %}
-					<img src="http://placehold.it/72x72" title="{{ owner_profile }}">
-				{% endthumbnail %}
-
-			{% endwith %}
-
-
 			<h4>Location</h4>
 			<p>{{ project.location }}</p>
 
@@ -54,7 +42,7 @@
                 {% endfor %}
             </ul>
 
-         	<h4>Tags</h4>
+         	<h1>Tags</h1>
             <ul>
                 {% for tag in project.tags.all %}
                     <li>{{ tag }}</li>
@@ -88,7 +76,6 @@
 			</p>
 
   		</div>
-
   		<div class="column grid_1">
 			{% include "projects/widgets/phases.html" %}
 			<br />  			
