@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.test import TestCase
 
 from apps.bluebottle_utils.tests import UserTestsMixin
@@ -10,13 +12,19 @@ class ProjectTestsMixin(OrganizationTestsMixin, UserTestsMixin):
     """ Mixin base class for tests using projects. """
 
     def create_project(self, organization=None, owner=None, title='',
-                       slug='', latitude= -11.2352, longitude= -84.123):
+                       slug='', latitude=None, longitude=None):
         """
         Create a 'default' project with some standard values so it can be
         saved to the database, but allow for overriding.
 
         The returned object is not yet saved to the database.
         """
+
+        if not latitude:
+            latitude = Decimal('-11.2352')
+
+        if not longitude:
+            longitude = Decimal('-84.123')
 
         if not organization:
             organization = self.create_organization()
@@ -33,12 +41,16 @@ class ProjectTestsMixin(OrganizationTestsMixin, UserTestsMixin):
 
         return project
 
-class PlanPhaseTestMixin(object):
     def create_planphase(self, project, money_total=15000, money_asked=5000):
-        planphase = PlanPhase(project=project, money_total=money_total, money_asked=money_asked)
-        return planphase.save()
+        """ Create (but not save) a plan phase. """
+        planphase = PlanPhase(
+            project=project, money_total=money_total, money_asked=money_asked
+        )
 
-class ProjectTests(TestCase, ProjectTestsMixin, PlanPhaseTestMixin):
+        return planphase
+
+
+class ProjectTests(TestCase, ProjectTestsMixin):
     """ Tests for projects. """
 
     def setUp(self):
@@ -68,10 +80,13 @@ class ProjectTests(TestCase, ProjectTestsMixin, PlanPhaseTestMixin):
         # The project title should be in the page, somewhere
         self.assertContains(response, self.project.title)
 
+        self.assertContains(response, self.project.owner)
+
     def test_amounts(self):
         """ Test calculation of donation amounts """
 
-        self.create_planphase(self.project, 12000, 3520)
+        phase = self.create_planphase(self.project, 12000, 3520)
+        phase.save()
 
         self.assertEquals(self.project.money_asked(), 3520)
 

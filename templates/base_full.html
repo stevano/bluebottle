@@ -1,7 +1,8 @@
 {% comment %} Use url tag from Django 1.5. {% endcomment %}
 {% load url from future %}
 
-{% load compress %}<!DOCTYPE HTML>
+{% load compress %}
+<!DOCTYPE HTML>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -15,19 +16,16 @@
 		<link rel="stylesheet" href="{{ STATIC_URL }}global/css/main.css" type="text/css" />
 	{% endcompress %}
 
-
 	{% compress js %}
-	    <script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/jquery-1.7.2.min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/underscore-min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/backbone-min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/bootstrap.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/backbone-tastypie.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/bluebone/app.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}global/js/blueapp.js"></script>
+	    <script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/lib/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/lib/underscore-min.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/lib/backbone-min.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/lib/bootstrap.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/lib/backbone-tastypie.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/bluebone/app.js"></script>
+		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/blueapp.js"></script>
 		<script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}global/js/main.js"></script>
 	{% endcompress %}
-
-	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 
 	<link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}global/css/main.less">
 	<script type="text/javascript" src="{{ STATIC_URL }}global/js/lib/less-1.3.0.min.js"></script>
@@ -46,8 +44,6 @@
 		</div>
 		<div id="toppanel">
 		{% block content %}
-			<a href="{% url 'project_list' %}">Projects</a> |
-			<a href="{% url 'userprofile_list' %}">Members</a>
 		{% endblock %}
 		</div>
 		<div id="midpanel">
@@ -59,9 +55,33 @@
 		    {% include "footer.html" %}
 		</div>
 
+		<div id="topmenu">
+			<ul>
+				<li class="active">1%CLUB</li>
+				<li>1%SHOW</li>
+				<li>1%EVENT</li>
+				<li>1%BOOKSHOP</li>
+				<li>1%TOOLBOX</li>
+			</ul>
+			<div id="mymenu">
+			    {% if user.is_authenticated %}
+			    	{{ user.username }} 
+				    <a href="{% url 'logout' %}?next={% firstof request.path "/" %}">LOG OUT</a>
+			    {% else %}
+				    <a href="{% url 'login' %}?next={% firstof request.path "/" %}">LOG IN</a>
+			    {% endif %}
+			</div>
+		</div>
 
-		{% include "navigation.html" %}		
-
+		<div id="submenu">
+			<ul>
+				<li><a href="{% url 'home' %}">HOME</a></li>
+				<li><a href="{% url 'project_list' %}">1%PROJECTS</a></li>
+				<li><a>1%TASKS</a></li>
+				<li><a>1%ACTIONS</a></li>
+				<li><a>LEARN MORE</a></li>
+			</ul>
+		</div>
 	</div>
 </body>
 </html>
