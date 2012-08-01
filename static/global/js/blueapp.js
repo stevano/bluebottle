@@ -31,13 +31,15 @@ BlueApp.views.addList('LatestProjects', {
     tpl: 'ProjectSearch',
 });
 
-BlueApp.views.addList('SearchProjects', {
+BlueApp.views.addList('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
     order: 'title',
     tpl: 'ProjectSearch',
 });
+
+BlueApp.views.add('ProjectSearchForm');
 
 
 BlueApp.snippets.setCallback(function(el){
@@ -54,7 +56,7 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
         ""                    : "home",
         "projects/:slug/"     : "project",
         "projects/:slug/map/" : "projectMap",
-        "search/projects/"    : "searchProjects",
+        "project/search/?:params"	  : "projectSearch",
     },
 
     initialize: function () {
@@ -72,6 +74,16 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
     	BlueApp.snippets.renderTo('#toppanel', url);
     },
 
+	projectSearch: function(params) {
+		var components = params.split("&");
+		var params = {};
+		for (c in components) {
+			var d = components[c].split("=");
+			params[d[0]] = d[1];
+		}
+		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', params)
+	}
+	
 
 }));
 

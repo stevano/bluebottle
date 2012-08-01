@@ -67,6 +67,13 @@ class Project(models.Model):
         help_text=_("Main language of the project."))
 
    # temporary to do hold random 'donated' 
+    tags = TaggableManager(blank=True)
+
+    # CHange this to the description of the active phase
+    def description(self):
+        return self.planphase.description
+
+    # temporary to do random donated thing 
     donated = 0
 
     def __unicode__(self):
@@ -90,6 +97,7 @@ class Project(models.Model):
 
     tags = TaggableManager(blank=True)
 
+<<<<<<< HEAD
     # CHange this to the description of the active phase
     def description(self):
         return self.planphase.description
@@ -104,30 +112,13 @@ class Project(models.Model):
 
     def money_asked(self):
         return int(self.planphase.money_asked)
+== == == =
+>>>>>>> dec1b02576d2aa4a30133f7be5780774016a437d
 
     def __unicode__(self):
         if self.title:
             return self.title
         return self.slug
-
-    """ Money asked, rounded to the lower end """
-    def money_asked(self):
-        return int(float(self.planphase.money_asked) - 0.45)
-
-    """ Money donated. For now this is random """
-    """ TODO: connect this to actual donations. Duh! """
-    def money_donated(self):
-        if self.donated == 0:
-            self.donated = int(random.randrange(5, self.money_asked()))
-        return self.donated
-
-    def money_donated_percentage(self):
-        if self.money_asked() == None:
-            return 0
-        return int(100 * (float(self.money_donated()) / float(self.money_asked())))
-
-    def money_needed(self):
-        return self.money_asked() - self.money_donated()
 
     # TODO: Have a Region/Continent her too
     def location(self):

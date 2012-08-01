@@ -183,13 +183,20 @@
             this.collection = Bluebone.models.newApiCollection(collectionName, {test: 'test', url: this.url});
             return this;
         },
-        renderTo: function(el) {
+        renderTo: function(el, params) {
+        	if (undefined == params) {
+        		params = {};
+        	}
+        	if (undefined == params.limit) {
+        		params.limit = 9;
+        	}
             var thisView = this;
             var ul = $('<ul></ul>').addClass(thisView.class);
             Bluebone.templates.load(thisView.tpl, function(template){
                 $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html()}));
             });
             this.collection.fetch({
+            	data: params,
                 success: function(){
                     var items = thisView.collection.models;
                     // Get the template for ListItems
@@ -238,11 +245,24 @@
     // 'container' the DOM element to put it in
     Bluebone.views.load = function(cfg) {
         $.each(cfg, function(i, container){
+        	if (undefined == container.wrapper) {
+				var target = $(container.container);        		
+        	} else {
+        		var wrapper = $('<' + container.wrapper + '/>');
+        		if (container.className) {
+        			wrapper.addClass(container.className);
+        		}	
+        		wrapper.appendTo(container.container)
+        		var target = wrapper;
+        	}
             $.each(container.widgets, function(j, widget) {
-                if ($(container.container).children('#' + widget.name).attr('id')) {
+                if (target.children('#' + widget.name).attr('id')) {
                     console.log('view ' + widget.name + ' already loaded...');
                 } else {
-                    $('<div />', {class: 'widget', id: widget.name}).appendTo(container.container);
+                	if (undefined == widget.className) {
+                		widget.className = 'widget';
+                	};
+                    $('<div />', {class: widget.className, id: widget.name}).appendTo(target);
                     Bluebone.views.get(widget.name).renderTo('#' + widget.name);
                 }
             });

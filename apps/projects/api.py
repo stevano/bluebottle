@@ -1,6 +1,12 @@
+from django.db.models import Q
+from django.conf.urls.defaults import *
+from django.core.paginator import Paginator, InvalidPage
+from django.http import Http404
+
 from tastypie.resources import ModelResource
 from tastypie import fields, utils
 from tastypie.authorization import DjangoAuthorization
+from tastypie.utils import trailing_slash
 
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase
 
@@ -44,7 +50,8 @@ class ProjectResource(ResourceBase):
         filtering = {
              "latitude": ('gte', 'lte'),
              "longitude": ('gte', 'lte'),
-             "title": ('startswith', 'contains')
+             "title": ('istartswith', 'icontains'),
+             "country": ('icontains'),
         }
 
 
