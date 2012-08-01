@@ -51,11 +51,8 @@
 				This bit will be populated by javascript
 			{% endcomment %}
 		</div>
-		<div id="footer">
-		    {% include "footer.html" %}
-		</div>
 
-		<div id="topmenu">
+		<div id="sitemenu">
 			<ul>
 				<li class="active">1%CLUB</li>
 				<li>1%SHOW</li>
@@ -71,6 +68,10 @@
 				    <a href="{% url 'login' %}?next={% firstof request.path "/" %}">LOG IN</a>
 			    {% endif %}
 			</div>
+		</div>
+
+		<div id="footer">
+		    {% include "footer.html" %}
 		</div>
 
 		<div id="submenu">

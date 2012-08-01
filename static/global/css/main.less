@@ -82,11 +82,10 @@ body {
   }
 }
 
-#topmenu,
+
+#sitemenu,
 #submenu {
-  position: fixed;
   width: @mainwidth;
-  top: 0px;
   background-color: @green;
   color: white;
   font-size: 0.9em;
@@ -96,10 +95,9 @@ body {
 
   ul {
     list-style: none;
-    margin: 4px 0px 0px;
-    padding: 0px 10px 0px 20px;
+    padding: 8px 10px 8px 20px;
     li {
-      float: left;
+      display: inline;
       margin: 0px;
       padding: 6px;
       text-indent: 0px;
@@ -114,17 +112,19 @@ body {
   }
 }
 
+
 #submenu {
-  top: 30px;
-  background-color: @white;
-  border-bottom: 1px solid @green;
+  position: fixed;
+  top: 0px;
+  background-color: @black;
   ul li {
     padding: 4px 6px;
   }
   ul li a {
-    color: @gray;
+    color: @white;
   }
-  ul li a.active, ul li a:hover {
+  ul li a.active, 
+  ul li a:hover {
     color: @green;
   }
 }
@@ -175,18 +175,18 @@ body {
 
 #footer {
   padding: 10px;
-  background-color: @green;
+  background-color: @white;
   min-height: 300px;
   h3 {
     font-family: @futura;
     margin: 0px 0px 4px;
-    color: white;
+    color: @green;
     
   }
   h4 a {
     font-family: @futura;
     margin: 2px 0px 2px;
-    color: white;
+    color: @green;
     font-size: 0.7em;
   }
   h4 a:hover {
