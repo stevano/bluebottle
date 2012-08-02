@@ -27,12 +27,12 @@
 	</label><br />
 	
 	<h3>Language</h3>
-	<input type="checkbox" id="cb_language_nl" name="languages[]" value="nl" checked  />
+	<input type="checkbox" id="cb_language_nl" name="languages[]" value="nl"  />
 	<label for="cb_language_nl">
 		Dutch
 	</label><br/>
 
-	<input type="checkbox" id="cb_language_en" name="languages[]" value="en" checked  />
+	<input type="checkbox" id="cb_language_en" name="languages[]" value="en"  />
 	<label for="cb_language_en">
 		English
 	</label><br />

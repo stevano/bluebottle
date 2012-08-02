@@ -18,6 +18,10 @@ function initAjax(container) {
 		return false;
 	});
 
+	$('input', container).change(function(){
+		$(this).parents('form.ajax').submit();
+	});
+
 	$('form.ajax', container).submit(function() {
 		var url = $(this).attr('action') + "/?" + $(this).serialize();
 		BlueApp.routers.Main.navigate(url, {
