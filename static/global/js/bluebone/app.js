@@ -191,13 +191,15 @@
         	}
             var thisView = this;
             var ul = $('<ul></ul>').addClass(thisView.class);
-            Bluebone.loadTemplate(thisView.tpl, function(template){
-                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html()}));
-            });
             this.collection.fetch({
             	data: params,
                 success: function(){
+                	console.log(thisView.collection);
                     var items = thisView.collection.models;
+                    var meta = thisView.collection.meta;
+		            Bluebone.loadTemplate(thisView.tpl, function(template){
+		                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html(), meta: meta}));
+		            });
                     // Get the template for ListItems
                     // Rather do it here than in ItenView, so it's only loaded once
                     Bluebone.loadTemplate(thisView.itemView, function(template){

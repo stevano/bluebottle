@@ -22,7 +22,8 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
         ""                    : "home",
         "projects/:slug/"     : "project",
         "projects/:slug/map/" : "projectMap",
-        "project/search/?:params"	  : "projectSearch",
+        "projects/?:params"	  : "projectSearch",
+        "projects/api/project/?:params"	  : "projectSearch",
     },
 
     initialize: function () {
