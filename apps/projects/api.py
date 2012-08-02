@@ -59,6 +59,11 @@ class ProjectResource(ResourceBase):
         if filters is None:
             filters = {}
         orm_filters = super(ProjectResource, self).build_filters(filters)
+        if('phase' in filters):
+            """ Phases filter """
+            query = filters['phase']
+            qset = (phase in query)
+            orm_filters['custom'] = qset
 
         if('text' in filters):
             """ Custom filter for free text search. """
@@ -78,7 +83,6 @@ class ProjectResource(ResourceBase):
                     Q(slug__icontains=query)
                     )
             orm_filters['custom'] = qset
-
         return orm_filters
 
     def apply_filters(self, request, applicable_filters):

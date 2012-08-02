@@ -363,7 +363,7 @@ body {
 
 .column.gray {
   background-color: @midgray;
-  color: @white;
+  color: @darkgray;
   padding: 8px;
   h3 {
     color: @darkgray;
@@ -402,3 +402,30 @@ body {
   background-color: @green;
 }
 
+
+form {
+  input[type=text],
+  input[type=password] {
+    border: 1px solid @darkgray;
+    padding: 4px;
+    color: @green;
+    font-weight: bold;
+    //box-shadow: inset 3px 3px 3px rgba(0,0,0,0.3)
+  }
+
+  input[type=checkbox] {
+    display: none;
+  }
+  
+  input[type=checkbox] + label {
+    cursor: pointer;
+    padding-left: 20px;
+  }
+
+  input[type=checkbox]:checked + label {
+    color: @green;
+    font-weight: bold;
+      background: url("@{static-url}/global/images/icons/icons.png") 0px 0px no-repeat;
+    
+  }
+}
