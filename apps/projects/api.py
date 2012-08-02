@@ -54,8 +54,6 @@ class ProjectResource(ResourceBase):
              "country": ('icontains'),
         }
 
-
-
     def filter_text(self, query):
         """ Custom filter for free text search. """
         query = query.replace('+', ' ')
@@ -77,6 +75,7 @@ class ProjectResource(ResourceBase):
         qset = (Q(phase__in=phases))
         return qset
 
+
     def apply_filters(self, request, applicable_filters):
         """ Apply custom filters """
         """ Get the objects with standard filters """
@@ -88,7 +87,11 @@ class ProjectResource(ResourceBase):
 
         phases = request.GET.getlist('phases[]', None)
         if phases:
-            filtered_objects = filtered_objects.filter(self.filter_phases(phases))
+            filtered_objects = filtered_objects.filter(phase__in=phases)
+
+        languages = request.GET.getlist('languages[]', None)
+        if languages:
+            filtered_objects = filtered_objects.filter(project_language__in=languages)
 
 
         return filtered_objects

@@ -8,23 +8,35 @@
 		<option value="UG">Uganda</option>
 	</select>
 
-	<h3>Phases</h3>
-	<input type="checkbox" id="cb_idea" name="phases[]" value="idea" />
-	<label for="cb_idea">
+	<h3>Phase</h3>
+	<input type="checkbox" id="cb_phases_idea" name="phases[]" value="idea" />
+	<label for="cb_phases_idea">
 		Idea
 	</label><br/>
-	<input type="checkbox" id="cb_plan" name="phases[]" value="plan" checked />
-	<label for="cb_plan">
+	<input type="checkbox" id="cb_phases_plan" name="phases[]" value="plan" checked />
+	<label for="cb_phases_plan">
 		Fund
 	</label><br />
-		<input type="checkbox" id="cb_act" name="phases[]" value="act" />
-	<label for="cb_act">
+	<input type="checkbox" id="cb_phases_act" name="phases[]" value="act" />
+	<label for="cb_phases_act">
 		Act
 	</label><br />
-	<input type="checkbox" id="cb_results" name="phases[]" value="results" />
-	<label for="cb_results">
+	<input type="checkbox" id="cb_phases_results" name="phases[]" value="results" />
+	<label for="cb_phases_results">
 		Results
 	</label><br />
 	
+	<h3>Language</h3>
+	<input type="checkbox" id="cb_language_nl" name="languages[]" value="nl" checked  />
+	<label for="cb_language_nl">
+		Dutch
+	</label><br/>
+	<input type="checkbox" id="cb_language_en" name="languages[]" value="en" checked  />
+	<label for="cb_language_en">
+		English
+	</label><br />
+	</label><br />
+	
+
 	<input type="submit" value="Search" />
 </form>
