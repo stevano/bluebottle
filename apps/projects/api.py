@@ -8,7 +8,7 @@ from tastypie import fields, utils
 from tastypie.authorization import DjangoAuthorization
 from tastypie.utils import trailing_slash
 
-from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase
+from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase, ProjectCategory
 
 class ResourceBase(ModelResource):
     class Meta:
@@ -92,6 +92,11 @@ class ProjectResource(ResourceBase):
         languages = request.GET.getlist('languages[]', None)
         if languages:
             filtered_objects = filtered_objects.filter(project_language__in=languages)
+
+        themes = request.GET.getlist('themes[]', None)
+        if themes:
+            categories = ProjectCategory.objects.filter(slug__in=themes)
+            filtered_objects = filtered_objects.filter(categories__in=categories)
 
 
         return filtered_objects

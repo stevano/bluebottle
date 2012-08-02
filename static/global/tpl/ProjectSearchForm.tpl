@@ -31,12 +31,68 @@
 	<label for="cb_language_nl">
 		Dutch
 	</label><br/>
+
 	<input type="checkbox" id="cb_language_en" name="languages[]" value="en" checked  />
 	<label for="cb_language_en">
 		English
 	</label><br />
-	</label><br />
+
+
+
+	<h3>Themes</h3>
 	
+	<input type="checkbox" id="cb_themes_agriculture" name="themes[]" value="agriculture"   />
+	<label for="cb_themes_agriculture">
+		Agriculture
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_climate" name="themes[]" value="climate"   />
+	<label for="cb_themes_climate">
+		Climate
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_culture" name="themes[]" value="culture"   />
+	<label for="cb_themes_culture">
+		Culture
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_education" name="themes[]" value="education"   />
+	<label for="cb_themes_education">
+		Education
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_health" name="themes[]" value="health"   />
+	<label for="cb_themes_health">
+		Health
+	</label><br/>
+
+	<input type="checkbox" id="cb_themes_social-entrepreneurship" name="themes[]" value="social-entrepreneurship"   />
+	<label for="cb_themes_social-entrepreneurship">
+		Social Entrepreneurship
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_sports" name="themes[]" value="sports"   />
+	<label for="cb_themes_sports">
+		Sports
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_water" name="themes[]" value="water"   />
+	<label for="cb_themes_water">
+		Water
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_women" name="themes[]" value="women"   />
+	<label for="cb_themes_women">
+		Women
+	</label><br/>
+	
+	<input type="checkbox" id="cb_themes_youth" name="themes[]" value="youth"   />
+	<label for="cb_themes_youth">
+		Youth
+	</label><br/>
+	
+
+
 
 	<input type="submit" value="Search" />
 </form>
