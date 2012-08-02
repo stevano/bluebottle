@@ -4,6 +4,7 @@ BlueApp.addListView('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
+    params: {'phases[]': 'plan'},
     order: 'title',
     tpl: 'ProjectSearch',
 });
@@ -39,14 +40,8 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
     	BlueApp.renderSnippetTo('#toppanel', url);
     },
 
-	projectSearch: function(params) {
-		var components = params.split("&");
-		var params = {};
-		for (c in components) {
-			var d = components[c].split("=");
-			params[d[0]] = d[1];
-		}
-		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', params)
+	projectSearch: function(getstring) {
+		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', getstring)
 	}
 	
 

@@ -160,9 +160,31 @@
             this.collection = Bluebone.addCollection(collectionName, {url: this.url});
             return this;
         },
-        renderTo: function(el, params) {
-        	if (undefined == params) {
-        		params = {};
+        renderTo: function(el, getparams) {
+        	if (undefined == getparams) {
+        		params = this.params;
+        	} else {
+        		// Convert a getstring to a an array
+        		// a kind of inverted jQuery.serialize()
+        		// example: name=bart&colors[]=pink&colors[]=green
+        		// is converted to:
+        		// {name:'bart', colors: ['pink', 'green']}
+				var params = {};
+				var components = getparams.split("&");
+				for (c in components) {
+					var d = components[c].split("=");
+					// Now deal with arrays (mutliple checkboxes)
+					var param = d[0].replace(/%5B%5D/, '');
+					if (param != d[0]) {
+						if (undefined == params[param]) {
+							params[param] = new Array();
+						}
+						params[param].push(d[1]);
+					} else {
+						params[d[0]] = d[1];
+					}
+				}
+        		
         	}
         	if (undefined == params.limit) {
         		params.limit = 9;

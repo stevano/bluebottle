@@ -85,12 +85,17 @@ class Project(models.Model):
         return self.slug
 
     def money_asked(self):
-        return int(self.planphase.money_asked)
+        try:
+            return int(self.planphase.money_asked)
+        except PlanPhase.DoesNotExist:
+            return 0
 
     """ Money donated, rounded to the lower end... """
     # Money donated. For now this is random
     # TODO: connect this to actual donations. Duh!
     def money_donated(self):
+        if self.money_asked() == 0:
+            return 0
         if self.donated == 0:
             self.donated = int(random.randrange(5, self.money_asked()))
         return int(self.donated)

@@ -46,7 +46,7 @@ class ProjectResource(ResourceBase):
         return bundle
 
     class Meta:
-        queryset = Project.objects.filter(phase='plan').all()
+        queryset = Project.objects.all()
         filtering = {
              "latitude": ('gte', 'lte'),
              "longitude": ('gte', 'lte'),
@@ -55,46 +55,43 @@ class ProjectResource(ResourceBase):
         }
 
 
-    def build_filters(self, filters=None):
-        if filters is None:
-            filters = {}
-        orm_filters = super(ProjectResource, self).build_filters(filters)
-        if('phase' in filters):
-            """ Phases filter """
-            query = filters['phase']
-            qset = (phase in query)
-            orm_filters['custom'] = qset
 
-        if('text' in filters):
-            """ Custom filter for free text search. """
-            query = filters['text']
-            # replaces +s with spaces due to jQuery serialize 
-            query = query.replace('+', ' ')
-            qset = (
-                    Q(title__icontains=query) |
-                    Q(actphase__description__icontains=query) |
-                    Q(planphase__description__icontains=query) |
-                    Q(planphase__what__icontains=query) |
-                    Q(planphase__goal__icontains=query) |
-                    Q(planphase__who__icontains=query) |
-                    Q(planphase__how__icontains=query) |
-                    Q(planphase__sustainability__icontains=query) |
-                    Q(planphase__target__icontains=query) |
-                    Q(slug__icontains=query)
-                    )
-            orm_filters['custom'] = qset
-        return orm_filters
+    def filter_text(self, query):
+        """ Custom filter for free text search. """
+        query = query.replace('+', ' ')
+        qset = (
+                Q(title__icontains=query) |
+                Q(actphase__description__icontains=query) |
+                Q(planphase__description__icontains=query) |
+                Q(planphase__what__icontains=query) |
+                Q(planphase__goal__icontains=query) |
+                Q(planphase__who__icontains=query) |
+                Q(planphase__how__icontains=query) |
+                Q(planphase__sustainability__icontains=query) |
+                Q(planphase__target__icontains=query) |
+                Q(slug__icontains=query)
+                )
+        return qset
+
+    def filter_phases(self, phases):
+        qset = (Q(phase__in=phases))
+        return qset
 
     def apply_filters(self, request, applicable_filters):
         """ Apply custom filters """
-        if 'custom' in applicable_filters:
-            custom = applicable_filters.pop('custom')
-        else:
-            custom = None
+        """ Get the objects with standard filters """
+        filtered_objects = super(ProjectResource, self).apply_filters(request, applicable_filters)
 
-        semi_filtered = super(ProjectResource, self).apply_filters(request, applicable_filters)
+        text = request.GET.get('text', None)
+        if text:
+            filtered_objects = filtered_objects.filter(self.filter_text(text))
 
-        return semi_filtered.filter(custom) if custom else semi_filtered
+        phases = request.GET.getlist('phases[]', None)
+        if phases:
+            filtered_objects = filtered_objects.filter(self.filter_phases(phases))
+
+
+        return filtered_objects
 
 
 class IdeaPhaseResource(ResourceBase):

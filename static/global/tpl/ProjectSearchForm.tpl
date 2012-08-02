@@ -9,19 +9,19 @@
 	</select>
 
 	<h3>Phases</h3>
-	<input type="checkbox" id="cb_idea" name="phase[]" value="idea" />
+	<input type="checkbox" id="cb_idea" name="phases[]" value="idea" />
 	<label for="cb_idea">
 		Idea
 	</label><br/>
-	<input type="checkbox" id="cb_plan" name="phase[]" value="plan" />
+	<input type="checkbox" id="cb_plan" name="phases[]" value="plan" checked />
 	<label for="cb_plan">
-		Plan
-	</label><br />
-		<input type="checkbox" id="cb_act" name="phase[]" value="act" />
-	<label for="cb_act">
 		Fund
 	</label><br />
-	<input type="checkbox" id="cb_results" name="phase[]" value="results" />
+		<input type="checkbox" id="cb_act" name="phases[]" value="act" />
+	<label for="cb_act">
+		Act
+	</label><br />
+	<input type="checkbox" id="cb_results" name="phases[]" value="results" />
 	<label for="cb_results">
 		Results
 	</label><br />
