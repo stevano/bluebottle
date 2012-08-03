@@ -1,6 +1,7 @@
 var BlueApp = Bluebone;
 
-BlueApp.createListView('ProjectsSearchResults', {
+// we want the side-effect of creating the object
+BlueApp.getListView('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
@@ -8,8 +9,8 @@ BlueApp.createListView('ProjectsSearchResults', {
     tpl: 'ProjectSearch'
 });
 
-BlueApp.createView('ProjectSearchForm');
-
+// we want the side-effect of creating the object
+BlueApp.getView('ProjectSearchForm');
 
 BlueApp.setAfterRender(function(el){
 	init(el);

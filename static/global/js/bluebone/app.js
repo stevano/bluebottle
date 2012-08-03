@@ -99,25 +99,30 @@
 
     });
 
-    // Get a view from views array
-    Bluebone.getView = function(view) {
-        if (undefined === Bluebone.views[view]) {
-            Bluebone.logError('View [' + view + '] not loaded!');
+    // Get a view from views array. The view will be created if it's not in the
+    // views array.
+    // viewName: name of view to get
+    // cfg: configuration with these parameters:
+    //          tpl: template name (optional - defaults to viewName)
+    Bluebone.getView = function(viewName, cfg) {
+        if (undefined === Bluebone.views[viewName]) {
+            Bluebone._createView(viewName, cfg);
         }
-        return Bluebone.views[view];
+        return Bluebone.views[viewName];
     };
 
-    // Add a view to views array
-    Bluebone.createView = function(name, cfg) {
+    // Private method.
+    // Create and add a view to views array.
+    Bluebone._createView = function(viewName, cfg) {
         if (undefined == cfg) {
             cfg = {};
         }
         // Use the same 'name' for template if none set.
         if (undefined === cfg.tpl) {
-            cfg.tpl = name;
+            cfg.tpl = viewName;
         }
         // Initiate the view
-        Bluebone.views[name] = new (Bluebone.View.extend(cfg));
+        Bluebone.views[viewName] = new (Bluebone.View.extend(cfg));
     };
     
     // Set the callback function to call after a view/snippet is rendered
@@ -127,25 +132,43 @@
 		Bluebone.afterRender = func;
 	};
 
-	// Add a list view 
-	// This will load a view for the list and a view for 
-	// list items.
-    Bluebone.createListView = function(name, cfg) {
+    // Get a list view from views array. The view will be created if it's not
+    // in the views array.
+    // viewName: name of view to get
+    // cfg: configuration with these parameters:
+    //          resource: resource to use (optional - defaults to viewName)
+    //          itemViewName: the name of the itemView (optional - defaults to viewNameItem)
+    //          url: the url for the API (required)
+    //          order: the sort order (optional - currently not used)
+    //          tpl: template name (optional - defaults to viewName)
+    Bluebone.getListView = function(viewName, cfg) {
+        if (undefined === Bluebone.views[viewName]) {
+            Bluebone._createListView(viewName, cfg);
+        }
+        // TODO: check that the view in the array is actually a ListView because
+        //       the views array has both ListViews and non-ListViews
+        return Bluebone.views[viewName];
+    };
+
+    // Private method.
+    // Create and add a ListView to the views array. This will also create and
+    // add a view for each itemView.
+    Bluebone._createListView = function(viewName, cfg) {
         if (undefined == cfg) {
             var cfg = {};
         }
         if (undefined == cfg.itemView) {
-            cfg.itemView = name + 'Item';
+            cfg.itemView = viewName + 'Item';
         }
         if (undefined == cfg.tpl) {
-            cfg.tpl = name;
+            cfg.tpl = viewName;
         }
         if (undefined == cfg.resource) {
-            cfg.resource = name;
+            cfg.resource = viewName;
         }
         var itemCfg = {tpl: cfg.itemView};
-        Bluebone.views[cfg.itemView] = new(Bluebone.ListItemView.extend(itemCfg));
-        Bluebone.views[name] = new(Bluebone.Listview.extend(cfg));
+        Bluebone.views[cfg.itemView] = new(Bluebone.ListViewItem.extend(itemCfg));
+        Bluebone.views[viewName] = new(Bluebone.ListView.extend(cfg));
     };
 
 
@@ -153,7 +176,7 @@
     // cfg will need 
     // url: Url to the API
     // resource: a name for the resource
-    Bluebone.Listview = Bluebone.View.extend({
+    Bluebone.ListView = Bluebone.View.extend({
         class: 'list',
         initialize: function() {
         	if (undefined == this.resource) {
@@ -203,7 +226,7 @@
     });
 
     // ListItemView. This should be only called from ListView
-    Bluebone.ListItemView = Bluebone.View.extend({
+    Bluebone.ListViewItem = Bluebone.View.extend({
         initialize: function() {
             return this;
         },
