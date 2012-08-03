@@ -108,7 +108,7 @@ class ProjectSearchFormResource(Resource):
         return bundle
 
     def obj_get_list(self, request):
-        countries = Project.objects.values('country').filter(phase='plan').annotate(count=Count('slug')).order_by('country')
+        countries = Project.objects.values('country').annotate(count=Count('slug')).order_by('country')
         countries = simplejson.dumps(list(countries))
 
         categories = Project.objects.filter(categories__isnull=False).values('categories__name', 'categories__slug').annotate(count=Count('slug')).order_by('categories__name')
