@@ -417,19 +417,32 @@ form {
     //box-shadow: inset 3px 3px 3px rgba(0,0,0,0.3)
   }
 
+  input[type=radio],
   input[type=checkbox] {
     display: none;
   }
   
+  input[type=radio] + label,
   input[type=checkbox] + label {
     cursor: pointer;
     padding-left: 20px;
   }
 
+  input[disabled] + label {
+    color: @gray;
+    font-style: italic; 
+  }
+
+  input[type=radio]:checked + label,
   input[type=checkbox]:checked + label {
     color: @green;
     font-weight: bold;
-      background: url("@{static-url}/global/images/icons/icons.png") 0px 0px no-repeat;
+    background: url("@{static-url}/global/images/icons/icons.png") 0px 0px no-repeat;
     
   }
+  input[type=radio]:checked + label {
+    background: url("@{static-url}/global/images/icons/icons.png") 0px -188px no-repeat;
+    
+  }
+
 }

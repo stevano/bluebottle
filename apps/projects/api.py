@@ -35,7 +35,10 @@ class ProjectResource(ResourceBase):
 #    resultsphase = fields.OneToOneField(
 #                'projects.api.ResultsPhaseResource', 'resultsphase', full=False)
 
+
+
     def dehydrate(self, bundle):
+        """ Add some more fields to project objects """
         bundle.data['location'] = bundle.obj.location()
         bundle.data['money_donated'] = bundle.obj.money_donated()
         bundle.data['money_asked'] = bundle.obj.money_asked()
@@ -68,10 +71,6 @@ class ProjectResource(ResourceBase):
                 )
         return qset
 
-    def filter_phases(self, phases):
-        qset = (Q(phase__in=phases))
-        return qset
-
 
     def apply_filters(self, request, applicable_filters):
         """ Apply custom filters """
@@ -97,6 +96,12 @@ class ProjectResource(ResourceBase):
         tags = request.GET.getlist('tags[]', None)
         if tags:
             filtered_objects = filtered_objects.filter(tags__slug__in=tags)
+
+        order = request.GET.get('order', None)
+        if order == 'alphabetically':
+            filtered_objects = filtered_objects.order_by('title')
+        if order == 'newest':
+            filtered_objects = filtered_objects.order_by('-created')
 
 
         return filtered_objects
