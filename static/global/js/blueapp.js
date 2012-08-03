@@ -1,14 +1,14 @@
 var BlueApp = Bluebone;
 
-BlueApp.addListView('ProjectsSearchResults', {
+BlueApp.createListView('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
     order: 'title',
-    tpl: 'ProjectSearch',
+    tpl: 'ProjectSearch'
 });
 
-BlueApp.addView('ProjectSearchForm');
+BlueApp.createView('ProjectSearchForm');
 
 
 BlueApp.setAfterRender(function(el){
@@ -18,25 +18,26 @@ BlueApp.setAfterRender(function(el){
 
 BlueApp.routers.Main = new (Bluebone.Router.extend({
     routes: {
-        ""                    : "home",
-        "projects/:slug/"     : "project",
-        "projects/:slug/map/" : "projectMap",
-        "project/search/?:params"	  : "projectSearch",
+        ""                            : "home",
+        "projects/:slug/"             : "project",
+        "projects/:slug/map/"         : "projectMap",
+        "projects/search/?:params"    : "projectSearch"
     },
 
     initialize: function () {
         console.log('Initializing BlueApp');
     },
-	
+
 
     project: function(slug) {
-	    BlueApp.renderSnippetTo('#toppanel', '/projects/' +  slug );
+        var url = '/projects/' + slug;
+        BlueApp.renderSnippetTo('#toppanel', url);
     },
 
 
     projectMap: function(slug) {
-    	var url = '/projects/' + slug + '/map';
-    	BlueApp.renderSnippetTo('#toppanel', url);
+        var url = '/projects/' + slug + '/map';
+        BlueApp.renderSnippetTo('#toppanel', url);
     },
 
 	projectSearch: function(params) {
@@ -46,10 +47,8 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
 			var d = components[c].split("=");
 			params[d[0]] = d[1];
 		}
-		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', params)
+		BlueApp.views.ProjectsSearchResults.renderTo('#ProjectsSearchResults', params);
 	}
-	
-
 }));
 
 Backbone.history.start();
