@@ -9,7 +9,12 @@ BlueApp.addListView('ProjectsSearchResults', {
     tpl: 'ProjectSearch',
 });
 
-BlueApp.addView('ProjectSearchForm');
+BlueApp.addListView('ProjectSearchForm', {
+    resource: 'ProjectSearchForm',
+    url: '/projects/api/projectsearchform/',
+    params: {'phases[]': 'plan'},
+    tpl: 'ProjectSearchForm',
+});
 
 
 BlueApp.setAfterRender(function(el){

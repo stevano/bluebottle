@@ -1,33 +1,48 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.conf.urls.defaults import *
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
+from django.core.serializers import serialize
+from django.utils import simplejson
 
-from tastypie.resources import ModelResource
+from tastypie.resources import ModelResource, Resource
 from tastypie import fields, utils
 from tastypie.authorization import DjangoAuthorization
 from tastypie.utils import trailing_slash
+from tastypie.paginator import Paginator
 
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase, ProjectCategory
 
 class ResourceBase(ModelResource):
     class Meta:
+
         authorization = DjangoAuthorization()
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
 
 
-# TODO: Change this resource so it returns members (Duh!)
-class ProjectMembersResource(ResourceBase):
+class ProjectSearchFormResource(Resource):
+    def dehydrate(self, bundle):
+        bundle = bundle.obj
+        return bundle
+
+    def obj_get_list(self, request):
+        countries = Project.objects.values('country').annotate(count=Count('country')).order_by('country')
+        categories = Project.objects.values('categories__name').filter(categories__isnull=False).annotate(count=Count('categories')).order_by('categories__name')
+        countries = simplejson.dumps(list(countries))
+        categories = simplejson.dumps(list(categories))
+        items = [
+                    ('countries', countries),
+                    ('categories', categories)
+                 ]
+        return items
 
     class Meta:
-        queryset = Project.objects.filter(phase='plan').all()
-
-
+        limit = 0
 
 class ProjectResource(ResourceBase):
 # Might want to use this later
-# However it does not work if the related Phasedoesn't exist...
+# However it does not work if the related Phase doesn't exist...
 #
 #    ideaphase = fields.OneToOneField(
 #                 'apps.projects.api.IdeaPhaseResource', 'ideaphase', full=True)

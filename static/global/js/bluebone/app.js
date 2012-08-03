@@ -127,9 +127,6 @@
         if (undefined == cfg) {
             var cfg = {};
         }
-        if (undefined == cfg.itemView) {
-            cfg.itemView = name + 'Item';
-        }
         if (undefined == cfg.tpl) {
             cfg.tpl = name
         }
@@ -137,7 +134,9 @@
             cfg.resource = name
         }
         var itemCfg = {tpl: cfg.itemView};
-        Bluebone.views[cfg.itemView] = new(Bluebone.ListItemView.extend(itemCfg));
+        if (cfg.itemView) {
+	        Bluebone.views[cfg.itemView] = new(Bluebone.ListItemView.extend(itemCfg));
+        }
         Bluebone.views[name] = new(Bluebone.Listview.extend(cfg));
     }
 
@@ -194,25 +193,37 @@
             this.collection.fetch({
             	data: params,
                 success: function(){
-                	console.log(thisView.collection);
                     var items = thisView.collection.models;
                     var meta = thisView.collection.meta;
+                    var objects = {};
+                    for (i in items) {
+                    	var item = items[i].attributes;
+                    	if (item[0] == 'countries') {
+	                    	objects[i] = eval(item[1]);
+	                    }
+                    }
 		            Bluebone.loadTemplate(thisView.tpl, function(template){
-		                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html(), meta: meta}));
+		                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html(), meta: meta, items: objects}));
+	                    // Get the template for ListItems
+	                    // Rather do it here than in ItenView, so it's only loaded once
+	                    if (undefined == thisView.itemView) {
+			                if (undefined != Bluebone.afterRender) {
+			                	Bluebone.afterRender(el);
+			                }
+	                    } else {
+		                    Bluebone.loadTemplate(thisView.itemView, function(template){
+		                        for (item in items) {
+		                            Bluebone.getView(thisView.itemView).render(template, items[item], function(item){
+		                                var li = $('<li />').append(item);
+		                                $('ul.' + thisView.class, el).append(li);
+		                            })
+		                        }
+				                if (undefined != Bluebone.afterRender) {
+				                	Bluebone.afterRender(el);
+				                }
+		                    });
+	                   }
 		            });
-                    // Get the template for ListItems
-                    // Rather do it here than in ItenView, so it's only loaded once
-                    Bluebone.loadTemplate(thisView.itemView, function(template){
-                        for (item in items) {
-                            Bluebone.getView(thisView.itemView).render(template, items[item], function(item){
-                                var li = $('<li />').append(item);
-                                $('ul.' + thisView.class, el).append(li);
-                            })
-                        }
-		                if (undefined != Bluebone.afterRender) {
-		                	Bluebone.afterRender(el);
-		                }
-                    });
                 }
             });
 

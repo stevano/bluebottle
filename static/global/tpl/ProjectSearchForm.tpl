@@ -4,9 +4,13 @@
 	<input name="text" type="text" />
 	<select name="country__contains">
 		<option value="">All countries</option>
-		<option value="KE">Kenya</option>
-		<option value="UG">Uganda</option>
+		<% _.each(items[0], function(country) { %>
+			<option value="<%= country.country %>">
+				<%= country.country %> (<%= country.count %>)<br/>
+			</option>
+		<% }) %>
 	</select>
+
 
 	<h3>Phase</h3>
 	<input type="checkbox" id="cb_phases_idea" name="phases[]" value="idea" />

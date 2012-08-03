@@ -1,5 +1,5 @@
 <div class="image">
-	<img src="http://placehold.it/225x120" alt="" />
+	<img src="http://placehold.it/225x100" alt="" />
 </div>
 <div class="title">
 	<a href="/projects/<%= slug %>/" class="ajax">
