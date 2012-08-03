@@ -103,24 +103,46 @@ class ProjectResource(ResourceBase):
 
 
 class ProjectSearchFormResource(Resource):
+    """ 
+        Have a separate resource for Search Form
+        We want to keep track of the number of projects per option
+    """
+
     def dehydrate(self, bundle):
         bundle = bundle.obj
         return bundle
 
     def obj_get_list(self, request):
-        countries = Project.objects.values('country').annotate(count=Count('slug')).order_by('country')
+        projects = Project.objects
+
+
+        countries = projects.values('country')
+        countries = countries.annotate(count=Count('slug'))
+        countries = countries.order_by('country')
         countries = simplejson.dumps(list(countries))
 
-        categories = Project.objects.filter(categories__isnull=False).values('categories__name', 'categories__slug').annotate(count=Count('slug')).order_by('categories__name')
+        categories = projects.filter(categories__isnull=False)
+        categories = categories.values('categories__name', 'categories__slug')
+        categories = categories.annotate(count=Count('slug'))
+        categories = categories.order_by('categories__name')
         categories = simplejson.dumps(list(categories))
 
-        tags = Project.objects.filter(tags__isnull=False).values('tags__name').annotate(count=Count('slug')).order_by('-count')[0:20]
+        tags = projects.filter(tags__isnull=False)
+        tags = tags.values('tags__name')
+        tags = tags.annotate(count=Count('slug'))
+        tags = tags.order_by('-count')[0:20]
         tags = simplejson.dumps(list(tags))
+
+        phases = projects.values('phase')
+        phases = phases.annotate(count=Count('slug'))
+        phases = phases.order_by('phase')
+        phases = simplejson.dumps(list(phases))
 
         items = [
                     ('countries', countries),
                     ('categories', categories),
-                    ('tags', tags)
+                    ('tags', tags),
+                    ('phases', phases)
                  ]
         return items
 

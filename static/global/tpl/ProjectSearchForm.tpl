@@ -12,23 +12,17 @@
 	</select>
 
 
+
 	<h3>Phase</h3>
-	<input type="checkbox" id="cb_phases_idea" name="phases[]" value="idea" />
-	<label for="cb_phases_idea">
-		Idea
-	</label><br/>
-	<input type="checkbox" id="cb_phases_plan" name="phases[]" value="plan" checked />
-	<label for="cb_phases_plan">
-		Fund
-	</label><br />
-	<input type="checkbox" id="cb_phases_act" name="phases[]" value="act" />
-	<label for="cb_phases_act">
-		Act
-	</label><br />
-	<input type="checkbox" id="cb_phases_results" name="phases[]" value="results" />
-	<label for="cb_phases_results">
-		Results
-	</label><br />
+	<% _.each(eval(items[3]['attributes'][1]), function(phase) { %>
+		<input type="checkbox" id="cb_phases_<%= phase.phase %>" name="phases[]" value="<%= phase.phase %>"
+			<% if (phase.phase == 'plan') { %> checked <% } %>  
+		 />
+		<label for="cb_phases_<%= phase.phase %>">
+			<b><%= phase.phase %></b> (<%= phase.count %>)
+		</label><br/>
+	<% }) %>
+
 	
 	<h3>Language</h3>
 	<input type="checkbox" id="cb_language_nl" name="languages[]" value="nl"  />
