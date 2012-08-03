@@ -195,15 +195,8 @@
                 success: function(){
                     var items = thisView.collection.models;
                     var meta = thisView.collection.meta;
-                    var objects = {};
-                    for (i in items) {
-                    	var item = items[i].attributes;
-                    	if (item[0] == 'countries') {
-	                    	objects[i] = eval(item[1]);
-	                    }
-                    }
 		            Bluebone.loadTemplate(thisView.tpl, function(template){
-		                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html(), meta: meta, items: objects}));
+		                $(el).html(_.template(template, {list: ul.wrap('<p>').parent().html(), meta: meta, items: items}));
 	                    // Get the template for ListItems
 	                    // Rather do it here than in ItenView, so it's only loaded once
 	                    if (undefined == thisView.itemView) {

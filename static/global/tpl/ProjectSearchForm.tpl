@@ -4,7 +4,7 @@
 	<input name="text" type="text" />
 	<select name="country__contains">
 		<option value="">All countries</option>
-		<% _.each(items[0], function(country) { %>
+		<% _.each(eval(items[0]['attributes'][1]), function(country) { %>
 			<option value="<%= country.country %>">
 				<%= country.country %> (<%= country.count %>)<br/>
 			</option>
@@ -42,61 +42,23 @@
 	</label><br />
 
 
-
 	<h3>Themes</h3>
-	
-	<input type="checkbox" id="cb_themes_agriculture" name="themes[]" value="agriculture"   />
-	<label for="cb_themes_agriculture">
-		Agriculture
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_climate" name="themes[]" value="climate"   />
-	<label for="cb_themes_climate">
-		Climate
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_culture" name="themes[]" value="culture"   />
-	<label for="cb_themes_culture">
-		Culture
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_education" name="themes[]" value="education"   />
-	<label for="cb_themes_education">
-		Education
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_health" name="themes[]" value="health"   />
-	<label for="cb_themes_health">
-		Health
-	</label><br/>
 
-	<input type="checkbox" id="cb_themes_social-entrepreneurship" name="themes[]" value="social-entrepreneurship"   />
-	<label for="cb_themes_social-entrepreneurship">
-		Social Entrepreneurship
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_sports" name="themes[]" value="sports"   />
-	<label for="cb_themes_sports">
-		Sports
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_water" name="themes[]" value="water"   />
-	<label for="cb_themes_water">
-		Water
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_women" name="themes[]" value="women"   />
-	<label for="cb_themes_women">
-		Women
-	</label><br/>
-	
-	<input type="checkbox" id="cb_themes_youth" name="themes[]" value="youth"   />
-	<label for="cb_themes_youth">
-		Youth
-	</label><br/>
-	
+	<% _.each(eval(items[1]['attributes'][1]), function(category) { %>
+		<input type="checkbox" id="cb_themes_<%= category.categories__slug %>" name="themes[]" value="<%= category.categories__slug %>"   />
+		<label for="cb_themes_<%= category.categories__slug %>">
+			<b><%= category.categories__name %></b> (<%= category.count %>)
+		</label><br/>
+	<% }) %>
 
+	<h3>Tags</h3>
 
+	<% _.each(eval(items[2]['attributes'][1]), function(tag) { %>
+		<input type="checkbox" id="cb_themes_<%= tag.tags__name %>" name="tags[]" value="<%= tag.tags__name %>"   />
+		<label for="cb_themes_<%= tag.tags__name %>">
+			<b><%= tag.tags__name %></b> (<%= tag.count %>)
+		</label><br/>
+	<% }) %>
 
 	<input type="submit" value="Search" />
 </form>

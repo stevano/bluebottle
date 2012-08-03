@@ -1,4 +1,4 @@
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.conf.urls.defaults import *
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
@@ -21,24 +21,6 @@ class ResourceBase(ModelResource):
         detail_allowed_methods = ['get']
 
 
-class ProjectSearchFormResource(Resource):
-    def dehydrate(self, bundle):
-        bundle = bundle.obj
-        return bundle
-
-    def obj_get_list(self, request):
-        countries = Project.objects.values('country').annotate(count=Count('country')).order_by('country')
-        categories = Project.objects.values('categories__name').filter(categories__isnull=False).annotate(count=Count('categories')).order_by('categories__name')
-        countries = simplejson.dumps(list(countries))
-        categories = simplejson.dumps(list(categories))
-        items = [
-                    ('countries', countries),
-                    ('categories', categories)
-                 ]
-        return items
-
-    class Meta:
-        limit = 0
 
 class ProjectResource(ResourceBase):
 # Might want to use this later
@@ -110,12 +92,40 @@ class ProjectResource(ResourceBase):
 
         themes = request.GET.getlist('themes[]', None)
         if themes:
-            categories = ProjectCategory.objects.filter(slug__in=themes)
-            filtered_objects = filtered_objects.filter(categories__in=categories)
+            filtered_objects = filtered_objects.filter(categories__slug__in=themes)
+
+        tags = request.GET.getlist('tags[]', None)
+        if tags:
+            filtered_objects = filtered_objects.filter(tags__slug__in=tags)
 
 
         return filtered_objects
 
+
+class ProjectSearchFormResource(Resource):
+    def dehydrate(self, bundle):
+        bundle = bundle.obj
+        return bundle
+
+    def obj_get_list(self, request):
+        countries = Project.objects.values('country').filter(phase='plan').annotate(count=Count('slug')).order_by('country')
+        countries = simplejson.dumps(list(countries))
+
+        categories = Project.objects.filter(categories__isnull=False).values('categories__name', 'categories__slug').annotate(count=Count('slug')).order_by('categories__name')
+        categories = simplejson.dumps(list(categories))
+
+        tags = Project.objects.filter(tags__isnull=False).values('tags__name').annotate(count=Count('slug')).order_by('-count')[0:20]
+        tags = simplejson.dumps(list(tags))
+
+        items = [
+                    ('countries', countries),
+                    ('categories', categories),
+                    ('tags', tags)
+                 ]
+        return items
+
+    class Meta:
+        limit = 0
 
 class IdeaPhaseResource(ResourceBase):
     project = fields.OneToOneField(ProjectResource, 'project')
