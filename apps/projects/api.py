@@ -10,6 +10,8 @@ from tastypie import fields, utils
 from tastypie.authorization import DjangoAuthorization
 from tastypie.utils import trailing_slash
 from tastypie.paginator import Paginator
+from sorl.thumbnail import get_thumbnail
+
 
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase, ProjectCategory
 
@@ -43,6 +45,13 @@ class ProjectResource(ResourceBase):
         bundle.data['money_donated'] = bundle.obj.money_donated()
         bundle.data['money_asked'] = bundle.obj.money_asked()
         bundle.data['money_needed'] = bundle.obj.money_needed()
+        try:
+            bundle.data['thumbnail'] = '/static/media/' + unicode(
+                                             get_thumbnail(bundle.obj.image,
+                                            '225x150', crop='center', quality=85))
+        except:
+            bundle.data['thumbnail'] = 'http://placehold.it/225x150'
+
         return bundle
 
     class Meta:

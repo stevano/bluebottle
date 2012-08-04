@@ -1,6 +1,6 @@
 <div class="project-mid">
 	<div class="image">
-		<img src="http://placehold.it/225x120" alt="" />
+		<img src="<%= item.thumbnail %>"  width="225" height="150" alt="" />
 		<div class="info">
 		</div>
 		<a href="/projects/<%= item.slug %>/" class="ajax">
