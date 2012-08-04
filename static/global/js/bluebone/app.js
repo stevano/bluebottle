@@ -230,7 +230,7 @@
         },
 
         render: function(template, model, callback) {
-            callback(_.template(template, model.attributes));
+            callback(_.template(template, {item: model.attributes}));
         }
     });
 

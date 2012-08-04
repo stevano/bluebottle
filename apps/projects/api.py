@@ -89,9 +89,9 @@ class ProjectResource(ResourceBase):
         if languages:
             filtered_objects = filtered_objects.filter(project_language__in=languages)
 
-        themes = request.GET.getlist('themes[]', None)
-        if themes:
-            filtered_objects = filtered_objects.filter(categories__slug__in=themes)
+        categories = request.GET.getlist('categories[]', None)
+        if categories:
+            filtered_objects = filtered_objects.filter(categories__slug__in=categories)
 
         tags = request.GET.getlist('tags[]', None)
         if tags:
@@ -113,6 +113,38 @@ class ProjectSearchFormResource(Resource):
         We want to keep track of the number of projects per option
     """
 
+    def create_element(self, objects, title, slug, type, filter,
+                       name_field=None, slug_field=None, order=None, limit=0):
+        """ Create a form element """
+        if type in ['select', 'radio', 'checkbox']:
+            options = objects
+            if slug_field == None:
+                slug_field = name_field
+            options = options.values_list(name_field, slug_field)
+            if order:
+                options = options.order_by(order)
+            options = options.annotate(count=Count('slug'))
+            if limit:
+                options = options[0:limit]
+            options = simplejson.dumps(list(options))
+            element = (title,
+                         {
+                             'name': slug,
+                             'filter': filter,
+                             'options': options,
+                             'type': type
+                         })
+        else:
+            element = (title,
+                         {
+                             'name': slug,
+                             'filter': filter,
+                             'type': type
+                         })
+
+        return element
+
+
     def dehydrate(self, bundle):
         bundle = bundle.obj
         return bundle
@@ -121,35 +153,34 @@ class ProjectSearchFormResource(Resource):
         projects = Project.objects
 
 
-        countries = projects.values('country')
-        countries = countries.annotate(count=Count('slug'))
-        countries = countries.order_by('country')
-        countries = simplejson.dumps(list(countries))
+        text = self.create_element(projects,
+                            'Text Search', 'text',
+                            'text', 'text')
 
-        categories = projects.filter(categories__isnull=False)
-        categories = categories.values('categories__name', 'categories__slug')
-        categories = categories.annotate(count=Count('slug'))
-        categories = categories.order_by('categories__name')
-        categories = simplejson.dumps(list(categories))
 
-        tags = projects.filter(tags__isnull=False)
-        tags = tags.values('tags__name')
-        tags = tags.annotate(count=Count('slug'))
-        tags = tags.order_by('-count')[0:20]
-        tags = simplejson.dumps(list(tags))
+        phases = self.create_element(projects,
+                            'Project Phase', 'phases',
+                            'checkbox', 'phase',
+                            'phase', 'phase', 'phase')
 
-        phases = projects.values('phase')
-        phases = phases.annotate(count=Count('slug'))
-        phases = phases.order_by('phase')
-        phases = simplejson.dumps(list(phases))
+        countries = self.create_element(projects,
+                            'Country', 'countries',
+                            'select', 'country__contains',
+                            'country', 'country', 'country')
 
-        items = [
-                    ('countries', countries),
-                    ('categories', categories),
-                    ('tags', tags),
-                    ('phases', phases)
-                 ]
+        themes = self.create_element(projects.filter(categories__isnull=False),
+                            'Themes', 'categories',
+                            'checkbox', 'categories',
+                            'categories__name', 'categories__slug', 'categories__name')
+
+        tags = self.create_element(projects.filter(tags__isnull=False),
+                            'Tags', 'tags',
+                            'checkbox', 'tags',
+                            'tags__name', 'tags__slug', '-count', 20)
+
+        items = [text, phases, countries, themes, tags]
         return items
+
 
     class Meta:
         limit = 0

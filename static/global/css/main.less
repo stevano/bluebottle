@@ -217,24 +217,6 @@ body {
   float: left;
   width: 225px;
   margin: 7px 7px 0px 0px;
-  .title,
-  .support {
-    font-size: 1em;
-    color: @white;
-    padding: 8px 8px 4px;
-  }
-  
-  h3 {
-    background-color: @green;
-    color: @white;
-    font-weight: bold;
-    overflow: hidden;
-    text-transform: uppercase;
-    font-family: @futura;
-    font-size: 1.1em;
-    padding: 12px 12px 8px;
-  }
-
   h3.light {
     background-color: @white;
     color: @green;
@@ -253,26 +235,15 @@ body {
     margin-right: 6px;
   }
       
-  .title {
-    height: 80px;
-    background-color: @green;
-    font-weight: bold;
-    overflow: hidden;
-    a {
-      color: @white;
-    }
-    h3 {
-      text-transform: uppercase;
-      font-family: @futura;
-      padding: 0px;
-    }
-  }
   .support {
     font-weight: bold;
     text-align: center;
     text-transform: uppercase;
     font-family: @futura;
-    background-color: @pink;
+    background-color: @green;
+    color: @white;
+    padding: 4px;
+    
   }
 }
 
@@ -303,13 +274,15 @@ body {
 .progressbar {
   background-color: @midgray;
   position: relative;
-  padding: 20px 10px;
+  padding: 4px 8px;
   .asked-bar {
     height: 10px;
     background-color: @lightgreen;
     position: relative;
+    border-radius: 5px;
   }
   .donated-bar {
+    border-radius: 5px 0px 0px 5px;
     top: 0px;
     left: 0px;
     height: 10px;
@@ -445,4 +418,38 @@ form {
     
   }
 
+}
+
+
+
+.project-mid {
+  .image {
+    position: relative;
+    .info {
+      position: absolute;
+      bottom: 0px;
+      height: 60px;
+      width: 225px;
+      opacity: 0.3;
+      background-color: @black;
+    }
+    .title,
+    .location {
+      position: absolute;
+      color: @white;
+      padding: 4px;
+      font-weight: bold; 
+      bottom: 0px;
+      text-shadow: 2px 2px 2px rgba(0,0,0,0.2)
+    }
+    .title {
+      height: 52px;
+      text-transform: uppercase;
+      font-family: @futura;
+      font-weight: bold;
+    }
+    .location {
+      right: 0px; 
+    }
+  }
 }

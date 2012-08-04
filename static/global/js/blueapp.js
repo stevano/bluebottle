@@ -11,6 +11,7 @@ BlueApp.addListView('ProjectsSearchResults', {
 
 BlueApp.addListView('ProjectSearchForm', {
     resource: 'ProjectSearchForm',
+    itemView: 'FormElements',
     url: '/projects/api/projectsearchform/',
     params: {'phases[]': 'plan'},
     tpl: 'ProjectSearchForm',
