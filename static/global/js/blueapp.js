@@ -1,15 +1,16 @@
 var BlueApp = Bluebone;
 
-BlueApp.addListView('ProjectsSearchResults', {
+// we want the side-effect of creating the object
+BlueApp.getListView('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
     params: {'phases[]': 'plan'},
     order: 'title',
-    tpl: 'ProjectSearch',
+    tpl: 'ProjectSearch'
 });
 
-BlueApp.addListView('ProjectSearchForm', {
+BlueApp.getListView('ProjectSearchForm', {
     resource: 'ProjectSearchForm',
     itemView: 'FormElements',
     url: '/projects/api/projectsearchform/',
@@ -25,33 +26,33 @@ BlueApp.setAfterRender(function(el){
 
 BlueApp.routers.Main = new (Bluebone.Router.extend({
     routes: {
-        ""                    : "home",
-        "projects/:slug/"     : "project",
-        "projects/:slug/map/" : "projectMap",
-        "projects/?:params"	  : "projectSearch",
-        "projects/api/project/?:params"	  : "projectSearch",
+        ""                    			: "home",
+        "projects/:slug/"     			: "project",
+        "projects/:slug/map/" 			: "projectMap",
+        "projects/?:params"	  			: "projectSearch",
+        "projects/api/project/?:params"	: "projectSearch",
     },
 
     initialize: function () {
         console.log('Initializing BlueApp');
     },
-	
+
 
     project: function(slug) {
-	    BlueApp.renderSnippetTo('#toppanel', '/projects/' +  slug );
+        var url = '/projects/' + slug;
+        BlueApp.renderSnippetTo('#toppanel', url);
     },
 
 
     projectMap: function(slug) {
-    	var url = '/projects/' + slug + '/map';
-    	BlueApp.renderSnippetTo('#toppanel', url);
+        var url = '/projects/' + slug + '/map';
+        BlueApp.renderSnippetTo('#toppanel', url);
     },
 
 	projectSearch: function(getstring) {
 		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', getstring)
 	}
 	
-
 }));
 
 Backbone.history.start();
