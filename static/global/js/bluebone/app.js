@@ -191,8 +191,8 @@
             this.collection = Bluebone.createModel(collectionName, {url: this.url});
             return this;
         },
-        renderTo: function(el, params) {
-        	if (undefined == params) {
+        renderTo: function(el, getstring) {
+        	if (undefined == getstring) {
         		params = this.params;
         	} else {
         		// Convert a getstring to a an array
@@ -201,7 +201,7 @@
         		// is converted to:
         		// {name:'bart', colors: ['pink', 'green']}
 				var params = {};
-				var components = getparams.split("&");
+				var components = getstring.split("&");
 				for (c in components) {
 					var d = components[c].split("=");
 					// Now deal with arrays (mutliple checkboxes)

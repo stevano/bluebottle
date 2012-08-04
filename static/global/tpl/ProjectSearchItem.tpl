@@ -1,5 +1,4 @@
 <div class="project-mid">
-	<% console.log(item) %>
 	<div class="image">
 		<img src="http://placehold.it/225x120" alt="" />
 		<div class="info">

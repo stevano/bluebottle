@@ -29,7 +29,6 @@ function initAjax(container) {
 
 	$('form.ajax', container).submit(function() {
 		var url = $(this).attr('action') + "?" + $(this).serialize();
-		console.log('searching : '+ url);
 		BlueApp.routers.Main.navigate(url, {
 			trigger : true
 		});
