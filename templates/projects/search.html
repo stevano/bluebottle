@@ -11,23 +11,17 @@
 
 	<script>
 		$(document).ready(function(){
-			BlueApp.views.load([
+			BlueApp.loadViews([
 				{
 					container: '#midpanel',
-					wrapper: 'div',
-					className: 'row',
 					'widgets' : [ 
 						{
-							name: 'ProjectsSearchResults',
-							wrapper: 'div',
-							className: 'column grid_3 searchResults'
-							//lifetime: 60,
+							name: 'ProjectSearchForm',
+							className: 'search-form'
 						},
 						{
-							name: 'ProjectSearchForm',
-							type: 'snippet',
-							wrapper: 'div',
-							className: 'column gray grid_1'
+							name: 'ProjectsSearchResults',
+							className: 'search-results'
 						}
 						]
 				}

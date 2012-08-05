@@ -218,7 +218,7 @@
         		
         	}
         	if (undefined == params.limit) {
-        		params.limit = 9;
+        		params.limit = 8;
         	}
             var thisView = this;
             var ul = $('<ul></ul>').addClass(thisView.className);        	
@@ -270,7 +270,7 @@
     // Load multiple views
     // 'view' is the view (view) to use
     // 'container' the DOM element to put it in
-    Bluebone.views.load = function(cfg) {
+    Bluebone.loadViews = function(cfg) {
         $.each(cfg, function(i, container) {
         	if (undefined == container.wrapper) {
 				var target = $(container.container);        		

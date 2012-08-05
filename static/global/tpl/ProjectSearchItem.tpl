@@ -11,13 +11,13 @@
 	
 	<div class="progressbar">
 		<div class="donated-text" style="margin-left: 0px; opacity: 1; ">
-			Now: <b>&euro;<span class="donated-amount"><%= item.money_donated %></span></b>					
+			NOW <b>&euro;<span class="donated-amount"><%= item.money_donated %></span></b>					
 		</div>
 		<div class="asked-bar">
 			<div class="donated-bar" style="width:0px; "></div>
 		</div>
 		<div class="asked-text">
-			Needed: <b>&euro;<span class="asked-amount"><%= item.money_asked %></span></b>
+			NEEDED <b>&euro;<span class="asked-amount"><%= item.money_asked %></span></b>
 		</div>
 	</div>
 	<div class="support">

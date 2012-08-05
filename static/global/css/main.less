@@ -1,18 +1,19 @@
 @pink: #FF619A;
 @green: #00C051;
-@lightgreen: #99EEBB;
+@midgreen: #99EEBB;
+@lightgreen: #BBFFDD;
 @sepia: #ddccbb;
 @black: #000000;
 @white: #ffffff;
 @gray: #a7a7a7;
 @darkgray: #555555;
-@lightgray: #E8E8E8;
-@midgray: #EEEEEE;
+@lightgray: #EEEEEE;
+@midgray: #BBBBBB;
 @static-url: "../../";
 
 @font: Arial, Helvetica;
 @futura: 'Futura Std Book', @font;
-@mainwidth: 1020px;
+@mainwidth: 1000px;
 
 .hidden {
   display: none;
@@ -43,8 +44,7 @@ h2 {
   font-family: @futura;
   font-size: 1.4em;
   text-transform: uppercase;
-  background-color: @white;
-  padding: 6px 4px 2px 4px;
+  padding: 10px 10px 2px 10px;
 }
 
 
@@ -143,7 +143,6 @@ body {
 
 
 #toppanel {
-  padding: 10px;
   background-color: #e8e8e8;
   font-size: 0.8em; 
   h1 {
@@ -175,7 +174,6 @@ body {
 
 #midpanel {
   font-size: 0.8em;
-  padding: 10px;
   background-color: @white;
   min-height: 300px;
 }
@@ -207,42 +205,6 @@ body {
   }
 }
 
- 
-.widget, 
-.results ul.list li {
-  float: left;
-  width: 225px;
-  margin: 7px 7px 0px 0px;
-  h3.light {
-    background-color: @white;
-    color: @green;
-  }
-
-  h3.link {
-    background-color: @pink;
-    color: @white;
-  }
-
-  h3 .icon {
-    width: 16px;
-    height: 14px;
-    background: @pink url("@{static-url}/global/images/icons/love.png") left center no-repeat;
-    float: left;
-    margin-right: 6px;
-  }
-      
-  .support {
-    font-weight: bold;
-    text-align: center;
-    text-transform: uppercase;
-    font-family: @futura;
-    background-color: @green;
-    color: @white;
-    padding: 8px 4px 4px;
-    
-  }
-}
-
 
 /* MAPS */
 
@@ -268,17 +230,18 @@ body {
 /* PROGRESS BAR */
 
 .progressbar {
-  background-color: @midgray;
+  background-color: @white;
   position: relative;
   padding: 4px 8px;
   .asked-bar {
     height: 10px;
-    background-color: @lightgreen;
+    background-color: @lightgray;
     position: relative;
     border-radius: 5px;
+    border: 1px solid @midgray;
+    overflow: hidden;
   }
   .donated-bar {
-    border-radius: 5px 0px 0px 5px;
     top: 0px;
     left: 0px;
     height: 10px;
@@ -306,6 +269,7 @@ body {
   .asked-text {
     color: @green;
     text-align: right;
+    padding: 4px;
   }
   
 }
@@ -330,7 +294,7 @@ body {
   padding: 8px;
 }
 
-.column.gray {
+.column.lightgray {
   background-color: @midgray;
   color: @darkgray;
   padding: 8px;
@@ -415,14 +379,77 @@ form {
 }
 
 
+ 
+.widget, 
+.results ul.list li {
+  display: inline;
+  float: left;
+  width: 227px;
+  margin: 10px;
+  h3.light {
+    background-color: @white;
+    color: @green;
+  }
+
+  h3.link {
+    background-color: @pink;
+    color: @white;
+  }
+
+  h3 .icon {
+    width: 16px;
+    height: 14px;
+    background: @pink url("@{static-url}/global/images/icons/love.png") left center no-repeat;
+    float: left;
+    margin-right: 6px;
+  }
+      
+  .support {
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: @futura;
+    background-color: @green;
+    color: @white;
+    padding: 8px 4px 4px;
+    
+  }
+}
+
+.search-results {
+  position: relative;
+  .paginator {
+    position: absolute;
+    width: 50px;
+    height: 39px;
+    overflow: hidden;
+    text-indent: 200px;
+    top: 50%;
+    border: 0px;
+  }
+  .next {
+    background: url("@{static-url}/global/images/icons/arrows.png") 0px 0px no-repeat;
+    right: -51px;
+  }
+  .previous {
+    background: url("@{static-url}/global/images/icons/arrows.png") 0px -40px no-repeat;
+    left: -47px;
+  }
+}
+
+
+
+
 
 .project-mid {
+  border: 1px solid @green;
+  
   .image {
     position: relative;
     .info {
       position: absolute;
       bottom: 0px;
-      height: 60px;
+      height: 68px;
       width: 225px;
       opacity: 0.5;
       background-color: @black;
@@ -431,7 +458,7 @@ form {
     .location {
       position: absolute;
       color: @white;
-      padding: 4px;
+      padding: 8px;
       font-weight: bold; 
       bottom: 0px;
       text-shadow: 2px 2px 2px rgba(0,0,0,0.2)
@@ -444,6 +471,32 @@ form {
     }
     .location {
       right: 0px; 
+    }
+  }
+}
+
+
+.lightgreen {
+  background-color: @lightgreen;
+  border: 1px solid @green;
+}
+
+.lightgray {
+  background-color: @lightgray;
+  border: 1px solid @midgray;
+}
+
+
+
+.search-form {
+  ul {
+    li {
+      display: inline;
+      float: left;
+      width: 225px;
+      margin: 10px;
+      border: 1px solid @gray;
+      
     }
   }
 }

@@ -50,7 +50,7 @@ BlueApp.routers.Main = new (Bluebone.Router.extend({
     },
 
 	projectSearch: function(getstring) {
-		BlueApp.views.ProjectsSearchResults.renderTo('.searchResults', getstring)
+		BlueApp.views.ProjectsSearchResults.renderTo('#ProjectsSearchResults', getstring)
 	}
 	
 }));
