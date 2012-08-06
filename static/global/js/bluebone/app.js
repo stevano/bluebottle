@@ -7,6 +7,7 @@
     Bluebone = this.Bluebone = Backbone;
 
     // We want all to be in our namespace
+    Bluebone.utils = {}; // Some common methods
     Bluebone.routers = {};
     Bluebone.models = {};
     Bluebone.views = {};
@@ -15,6 +16,7 @@
 
     // Function to run after HTML is rendered
     Bluebone.afterRender; 
+
 
 
 	/*
@@ -29,6 +31,34 @@
 		console.log(level + ': ' + message);
 		return false;
 	};
+
+	/*
+	 * UTILS
+	 */
+	// Unserialize a string of a jQuery serialized form
+	Bluebone.utils.unserialize = function(string) {
+		// a kind of inverted jQuery.serialize()
+		// example: name=bart&colors[]=pink&colors[]=green
+		// is converted to:
+		// {name:'bart', colors: ['pink', 'green']}
+		var params = {};
+		var components = string.split("&");
+		for (c in components) {
+			var d = components[c].split("=");
+			// Now deal with arrays (mutliple checkboxes)
+			var param = d[0].replace(/%5B%5D/g, '');
+			if (param != d[0]) {
+				if (undefined == params[param]) {
+					params[param] = new Array();
+				}
+				params[param].push(d[1]);
+			} else {
+				params[d[0]] = d[1];
+			}
+		}
+		console.log(params);
+		return params;
+	}
 
 
     /*
@@ -171,7 +201,6 @@
         Bluebone.views[viewName] = new(Bluebone.ListView.extend(cfg));
     };
 
-
     // Create a view with a list of items
     // cfg will need 
     // url: Url to the API
@@ -196,26 +225,7 @@
         		params = this.params;
         	} else {
         		// Convert a getstring to a an array
-        		// a kind of inverted jQuery.serialize()
-        		// example: name=bart&colors[]=pink&colors[]=green
-        		// is converted to:
-        		// {name:'bart', colors: ['pink', 'green']}
-				var params = {};
-				var components = getstring.split("&");
-				for (c in components) {
-					var d = components[c].split("=");
-					// Now deal with arrays (mutliple checkboxes)
-					var param = d[0].replace(/%5B%5D/, '');
-					if (param != d[0]) {
-						if (undefined == params[param]) {
-							params[param] = new Array();
-						}
-						params[param].push(d[1]);
-					} else {
-						params[d[0]] = d[1];
-					}
-				}
-        		
+				params = Bluebone.utils.unserialize(getstring);
         	}
         	if (undefined == params.limit) {
         		params.limit = 8;
@@ -224,7 +234,7 @@
             var ul = $('<ul></ul>').addClass(thisView.className);        	
 			this.collection.fetch({
             	data: params,
-                success: function(){
+                success: function() {
                     var items = thisView.collection.models;
                     var meta = thisView.collection.meta;
 		            Bluebone.loadTemplate(thisView.tpl, function(template){

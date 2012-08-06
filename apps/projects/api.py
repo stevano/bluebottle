@@ -38,13 +38,13 @@ class ProjectResource(ResourceBase):
 #                'projects.api.ResultsPhaseResource', 'resultsphase', full=False)
 
 
-
     def dehydrate(self, bundle):
         """ Add some more fields to project objects """
         bundle.data['location'] = bundle.obj.location()
         bundle.data['money_donated'] = bundle.obj.money_donated()
         bundle.data['money_asked'] = bundle.obj.money_asked()
         bundle.data['money_needed'] = bundle.obj.money_needed()
+        # TODO: move this to model
         try:
             bundle.data['thumbnail'] = '/static/media/' + unicode(
                                              get_thumbnail(bundle.obj.image,
@@ -111,7 +111,6 @@ class ProjectResource(ResourceBase):
             filtered_objects = filtered_objects.order_by('title')
         if order == 'newest':
             filtered_objects = filtered_objects.order_by('-created')
-
 
         return filtered_objects
 
@@ -187,7 +186,11 @@ class ProjectSearchFormResource(Resource):
                             'checkbox', 'tags',
                             'tags__name', 'tags__slug', '-count', 20)
 
-        items = [text, phases, countries, themes, tags]
+        freetags = self.create_element(projects,
+                            'Tag Search', 'freetags',
+                            'text', 'tags[]')
+
+        items = [tags, freetags, text, phases, countries, themes]
         return items
 
 
@@ -220,5 +223,11 @@ class ResultsPhaseResource(ResourceBase):
 
     class Meta:
         queryset = ResultsPhase.objects.all()
+
+
+
+from django.conf import settings
+from tastypie.exceptions import BadRequest
+from urllib import urlencode
 
 

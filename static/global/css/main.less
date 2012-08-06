@@ -233,26 +233,33 @@ body {
   background-color: @white;
   position: relative;
   padding: 4px 8px;
-  .asked-bar {
-    height: 10px;
-    background-color: @lightgray;
+  .bar {
+    height: 12px;
     position: relative;
-    border-radius: 5px;
-    border: 1px solid @midgray;
-    overflow: hidden;
+    border: 1px solid @white;
   }
+  .asked-bar,
   .donated-bar {
+    width: 100%;
+    margin: -1px;
+    background-color: @lightgray;
     top: 0px;
     left: 0px;
     height: 10px;
     position: absolute;
+    border: 1px solid @midgray;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  .donated-bar {
     background-color: @green;
-    border-right: 1px solid @green;
+    border: 1px solid @green;
+    //border-right: 1px solid @green;
   }
 
   .donated-text.right {
     color: @green;
-    border-right: 1px solid @green;
+    border-right: 2px solid @green;
     padding: 0px 4px 4px;
     text-align: right;
     margin-right: -1px;
@@ -262,7 +269,7 @@ body {
   .donated-text.left {
     margin-left: -1px;
     color: @green;
-    border-left: 1px solid @green;
+    border-left: 2px solid @green;
     padding: 0px 4px 4px;
   }
   
@@ -420,7 +427,7 @@ form {
   position: relative;
   .paginator {
     position: absolute;
-    width: 50px;
+    width: 30px;
     height: 39px;
     overflow: hidden;
     text-indent: 200px;
@@ -428,12 +435,18 @@ form {
     border: 0px;
   }
   .next {
-    background: url("@{static-url}/global/images/icons/arrows.png") 0px 0px no-repeat;
-    right: -51px;
+    background: url("@{static-url}/global/images/icons/arrows.png") 0px -80px no-repeat;
+    right: -31px;
   }
   .previous {
+    background: url("@{static-url}/global/images/icons/arrows.png") 0px -120px no-repeat;
+    left: -27px;
+  }
+  .next:hover {
+    background: url("@{static-url}/global/images/icons/arrows.png") 0px 0px no-repeat;
+   }
+  .previous:hover {
     background: url("@{static-url}/global/images/icons/arrows.png") 0px -40px no-repeat;
-    left: -47px;
   }
 }
 

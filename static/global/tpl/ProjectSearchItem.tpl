@@ -13,7 +13,8 @@
 		<div class="donated-text" style="margin-left: 0px; opacity: 1; ">
 			NOW <b>&euro;<span class="donated-amount"><%= item.money_donated %></span></b>					
 		</div>
-		<div class="asked-bar">
+		<div class="bar">
+			<div class="asked-bar"></div>
 			<div class="donated-bar" style="width:0px; "></div>
 		</div>
 		<div class="asked-text">
