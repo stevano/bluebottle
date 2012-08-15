@@ -12,17 +12,20 @@ from tastypie.utils import trailing_slash
 from tastypie.paginator import Paginator
 from sorl.thumbnail import get_thumbnail
 
+from apps.accounts.api import PrettyJSONSerializer
 
 from .models import Project, IdeaPhase, PlanPhase, ActPhase, ResultsPhase, ProjectCategory
+from apps.geo.models import Country
 
 class ResourceBase(ModelResource):
     class Meta:
-
         authorization = DjangoAuthorization()
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
+        serializer = PrettyJSONSerializer()
+        always_return_data = True
 
-
+    
 
 class ProjectResource(ResourceBase):
 # Might want to use this later
@@ -54,13 +57,12 @@ class ProjectResource(ResourceBase):
 
         return bundle
 
-    class Meta:
+    class Meta(ResourceBase.Meta):
         queryset = Project.objects.all()
         filtering = {
              "latitude": ('gte', 'lte'),
              "longitude": ('gte', 'lte'),
-             "title": ('istartswith', 'icontains'),
-             "country": ('icontains'),
+             "title": ('istartswith', 'icontains')
         }
 
     def filter_text(self, query):
@@ -90,21 +92,26 @@ class ProjectResource(ResourceBase):
         if text:
             filtered_objects = filtered_objects.filter(self.filter_text(text))
 
-        phases = request.GET.getlist('phases[]', None)
+        phases = request.GET.get('phases', None)
         if phases:
-            filtered_objects = filtered_objects.filter(phase__in=phases)
+            filtered_objects = filtered_objects.filter(phase__in=phases.split(','))
 
-        languages = request.GET.getlist('languages[]', None)
+        languages = request.GET.get('languages', None)
         if languages:
-            filtered_objects = filtered_objects.filter(project_language__in=languages)
+            filtered_objects = filtered_objects.filter(project_language__in=languages.split(','))
 
-        categories = request.GET.getlist('categories[]', None)
+        categories = request.GET.get('categories', None)
         if categories:
-            filtered_objects = filtered_objects.filter(categories__slug__in=categories)
+            filtered_objects = filtered_objects.filter(categories__slug__in=categories.split(','))
 
-        tags = request.GET.getlist('tags[]', None)
+        tags = request.GET.get('tags', None)
         if tags:
-            filtered_objects = filtered_objects.filter(tags__slug__in=tags)
+            filtered_objects = filtered_objects.filter(tags__slug__in=tags.split(','))
+
+        country = request.GET.get('country', None)
+        if country:
+            selectedCountry = Country.objects.get(pk=country)
+            filtered_objects = filtered_objects.filter(country=selectedCountry)
 
         order = request.GET.get('order', None)
         if order == 'alphabetically':
@@ -116,11 +123,60 @@ class ProjectResource(ResourceBase):
 
 
 class ProjectSearchFormResource(Resource):
-    """ 
+    """
         Have a separate resource for Search Form
         We want to keep track of the number of projects per option
     """
 
+    def filter_text(self, query):
+        """ Custom filter for free text search. """
+        query = query.replace('+', ' ')
+        qset = (
+                Q(title__icontains=query) |
+                Q(actphase__description__icontains=query) |
+                Q(planphase__description__icontains=query) |
+                Q(planphase__what__icontains=query) |
+                Q(planphase__goal__icontains=query) |
+                Q(planphase__who__icontains=query) |
+                Q(planphase__how__icontains=query) |
+                Q(planphase__sustainability__icontains=query) |
+                Q(planphase__target__icontains=query) |
+                Q(slug__icontains=query)
+                )
+        return qset
+
+
+    def custom_filters(self, request, filtered_objects):
+
+        text = request.GET.get('text', None)
+        if text:
+            filtered_objects = filtered_objects.filter(self.filter_text(text))
+
+        phases = request.GET.get('phases', None)
+        if phases:
+            filtered_objects = filtered_objects.filter(phase__in=phases.split(','))
+
+        languages = request.GET.get('languages', None)
+        if languages:
+            filtered_objects = filtered_objects.filter(project_language__in=languages.split(','))
+
+        categories = request.GET.get('categories', None)
+        if categories:
+            filtered_objects = filtered_objects.filter(categories__slug__in=categories.split(','))
+
+        tags = request.GET.get('tags', None)
+        if tags:
+            filtered_objects = filtered_objects.filter(tags__slug__in=tags.split(','))
+
+        order = request.GET.get('order', None)
+        if order == 'alphabetically':
+            filtered_objects = filtered_objects.order_by('title')
+        if order == 'newest':
+            filtered_objects = filtered_objects.order_by('-created')
+
+        return filtered_objects
+
+    
     def create_element(self, objects, title, slug, type, filter,
                        name_field=None, slug_field=None, order=None, limit=0):
         """ Create a form element """
@@ -134,21 +190,29 @@ class ProjectSearchFormResource(Resource):
             options = options.annotate(count=Count('slug'))
             if limit:
                 options = options[0:limit]
-            options = simplejson.dumps(list(options))
-            element = (title,
-                         {
+            #options = simplejson.dumps(list(options))
+            opts = list(options)
+            options = []
+            for opt in opts:
+                options.append({
+                         'title': opt[0], 
+                         'name': opt[1],
+                         'count': opt[2] 
+                         })
+            element = {
+                            'title': title,
                              'name': slug,
                              'filter': filter,
                              'options': options,
                              'type': type
-                         })
+                         }
         else:
-            element = (title,
-                         {
+            element = {
+                            'title': title,
                              'name': slug,
                              'filter': filter,
                              'type': type
-                         })
+                         }
 
         return element
 
@@ -158,7 +222,7 @@ class ProjectSearchFormResource(Resource):
         return bundle
 
     def obj_get_list(self, request):
-        projects = Project.objects
+        projects = self.custom_filters(request, Project.objects)
 
 
         text = self.create_element(projects,
@@ -168,13 +232,13 @@ class ProjectSearchFormResource(Resource):
 
         phases = self.create_element(projects,
                             'Project Phase', 'phases',
-                            'checkbox', 'phase',
+                            'checkbox', 'phases',
                             'phase', 'phase', 'phase')
 
         countries = self.create_element(projects,
                             'Country', 'countries',
-                            'select', 'country__contains',
-                            'country', 'country', 'country')
+                            'select', 'country',
+                            'country__name', 'country', 'country')
 
         themes = self.create_element(projects.filter(categories__isnull=False),
                             'Themes', 'categories',
@@ -186,15 +250,11 @@ class ProjectSearchFormResource(Resource):
                             'checkbox', 'tags',
                             'tags__name', 'tags__slug', '-count', 20)
 
-        freetags = self.create_element(projects,
-                            'Tag Search', 'freetags',
-                            'text', 'tags[]')
-
-        items = [tags, freetags, text, phases, countries, themes]
+        items = [tags, text, phases, countries, themes]
         return items
 
 
-    class Meta:
+    class Meta(ResourceBase.Meta):
         limit = 0
 
 class IdeaPhaseResource(ResourceBase):
@@ -229,5 +289,4 @@ class ResultsPhaseResource(ResourceBase):
 from django.conf import settings
 from tastypie.exceptions import BadRequest
 from urllib import urlencode
-
 

@@ -46,17 +46,13 @@
 		for (c in components) {
 			var d = components[c].split("=");
 			// Now deal with arrays (mutliple checkboxes)
-			var param = d[0].replace(/%5B%5D/g, '');
-			if (param != d[0]) {
-				if (undefined == params[param]) {
-					params[param] = new Array();
-				}
-				params[param].push(d[1]);
+			if (undefined == params[d[0]]) {
+				params[d[0]] = d[1];	
 			} else {
-				params[d[0]] = d[1];
+				params[d[0]] += ',' + d[1];	
 			}
+			
 		}
-		console.log(params);
 		return params;
 	}
 

@@ -5,7 +5,6 @@ BlueApp.getListView('ProjectsSearchResults', {
     resource: 'Project',
     itemView: 'ProjectSearchItem',
     url: '/projects/api/project/',
-    params: {'phases[]': 'plan'},
     order: 'title',
     tpl: 'ProjectSearch'
 });
@@ -14,7 +13,6 @@ BlueApp.getListView('ProjectSearchForm', {
     resource: 'ProjectSearchForm',
     itemView: 'FormElements',
     url: '/projects/api/projectsearchform/',
-    params: {'phases[]': 'plan'},
     tpl: 'ProjectSearchForm',
 });
 

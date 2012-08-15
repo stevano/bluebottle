@@ -1,25 +1,24 @@
-<h3><%= item[0] %></h3>
-
-<% if (item[1].type == 'text') { %>
-	<input name="<%= item[1].filter %>" type="text" />
+<h3><%= item.name %></h3>
+<% if (item.type == 'text') { %>
+	<input name="<%= item.filter %>" type="text" />
 <% } %> 
 
-<% if (item[1].type == 'select') { %>
-	<select name="<%= item[1].filter %>">
+<% if (item.type == 'select') { %>
+	<select name="<%= item.filter %>">
 		<option value="">- all - </option>
-		<% _.each(eval(item[1].options), function(option) { %>
-			<option value="<%= option[0] %>">
-				<%= option[1] %> (<%= option[2] %>)<br/>
+		<% _.each(item.options, function(option) { %>
+			<option value="<%= option.name %>">
+				<%= option.title %> [<%= option.count %>]<br/>
 			</option>
 		<% }) %>
 	</select>
 <% } %> 
 
-<% if (item[1].type == 'checkbox') { %>
-	<% _.each(eval(item[1].options), function(option) { %>
-		<input type="checkbox" id="cb_<%= item[1].name %>_<%= option[0] %>" name="<%= item[1].name %>[]" value="<%= option[1] %>"   />
-		<label for="cb_<%= item[1].name %>_<%= option[0] %>">
-			<b><%= option[0] %></b> (<%= option[2] %>)
+<% if (item.type == 'checkbox') { %>
+	<% _.each(item.options, function(option) { %>
+		<input type="checkbox" id="cb_<%= item.name %>_<%= option.name %>" name="<%= item.name %>" value="<%= option.name %>"   />
+		<label for="cb_<%= item.name %>_<%= option.name %>">
+			<b><%= option.title %></b> (<%= option.count %>)
 		</label><br/>
 	<% }) %>
 <% } %>
