@@ -40,5 +40,5 @@ App.ProjectRoute.reopen({
 });
 
 
-//TODO: make sure that we update the router here
+//TODO:
 App.updateRouter();

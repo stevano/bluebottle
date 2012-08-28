@@ -2,7 +2,18 @@ App = Em.Application.create({
   rootElement : '#content',
   
   updateRouter: function() {
+    var router = this.router;    
+    //var states = this.get(router, 'states'), foundStates;
+    console.log(router);
+    for (name in states) {
+      console.log(states[name]);
+      this.setupChild(states, name, states[name]);
+    }
+    
+    
     console.log('Don\'t know how to update the router, yet....')
+    var router = this.get('router');
+    router.init();
   },
 
   // Define the main application controller. This is automatically picked up by
