@@ -40,7 +40,7 @@ App.ProjectRoute = Em.Route.extend({
         console.log(event);
         var section = $(event.srcElement).parents('.section');
         
-        $('.advanced', section).toggleClass('hidden');
+        $('.advanced', section).slideToggle(500);
         $('.resize a', section).toggleClass('hidden');
         
     },
