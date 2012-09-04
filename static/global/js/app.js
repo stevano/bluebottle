@@ -36,6 +36,14 @@ App.ProjectRoute = Em.Route.extend({
     route: '/projects',
 
     showProjectDetail: Em.Route.transitionTo('projects.detail'),
+    toggleAdvancedSearch: function(router, event){
+        console.log(event);
+        var section = $(event.srcElement).parents('.section');
+        
+        $('.advanced', section).toggleClass('hidden');
+        $('.resize a', section).toggleClass('hidden');
+        
+    },
 
     connectOutlets : function(router, context) {
         require(['app/projects'], function(){

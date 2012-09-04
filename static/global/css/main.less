@@ -276,22 +276,22 @@ body {
   
   //background-color: @backgroundgreen;
   //border: 1px solid @midgreen;
-  font-size: 0.8em; 
   h1 {
     font-family: @futura;
     color: @black;
     text-transform: uppercase;
     margin: 6px 0px 12px 0px;
     padding: 0px;
-    font-size: 1.6em;
+    font-size: 1.4em;
   }
   h4 {
     font-family: @font;
     margin: 2px 0px 2px 0px;
     text-transform: uppercase;
-    font-size: 0.8em; 
+    font-size: 0.7em; 
   }
   p, ul {
+    font-size: 0.8
     margin: 0px 0px 12px 0px;
   }
   .viewer ul {
@@ -484,7 +484,7 @@ body {
   padding: 6px 5px 4px;
   font-family: @futura;
   font-weight: bold;
-  font-size: 1em;
+  font-size: 0.8em;
   margin: 2px;
   float: left;
   border-radius: 12px;
@@ -743,7 +743,7 @@ form.search {
 #top-panel .location {
   background-color: @lightgreen;
   h4 {
-    font-size: 1.3em;
+    font-size: 1em;
     font-weight: bold;
     text-transform: none;
   }
@@ -789,7 +789,6 @@ form.search {
     background-color: @green;
     color: @white;
     text-transform: uppercase;
-    font-size: 1.2em;
     font-weight: bold;
     font-family: @futura;
   }
@@ -802,6 +801,7 @@ form.search {
 ul.categories, 
 ul.tags {
   li {
+    font-size: 0.8em;
     padding: 2px 4px;
     margin: 2px;
     background-color: @green;
@@ -845,8 +845,9 @@ ul.categories {
   color: @white;
   font-family: @futura;
   display: inline-block;
+  font-size: 0.8em;
   h1 {
-    font-size: 3em;
+    font-size: 2.5em;
     //color: @white;
     color: @gray;
   }
@@ -876,8 +877,25 @@ ul.categories {
   a {
     display: block;
     color: @green;
-    margin: 8px 12px;
+    margin: 6px;
   }
+  a.hidden {
+    display: none;
+  }
+  
+
+  .resize-up,
+  .resize-down {
+    width: 14px;
+    height: 13px;
+    display: inline-block;
+    background: url("@{static-url}/global/images/icons/resize.png") 0px -13px no-repeat;
+  }
+  
+  .resize-down {
+    background: url("@{static-url}/global/images/icons/resize.png") 0px 0px no-repeat;
+  }
+  
   font-weight: bold;
   text-align: right;
   font-size: 0.8em;

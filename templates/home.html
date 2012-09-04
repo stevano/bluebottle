@@ -52,9 +52,38 @@
             <div class="column grid_1">
                 {{view "App.ProjectStatsView"}}
             </div>
-            <div class="resize">
-                <a href>SHOW ALL PROJECT DETAILS</a>
+        </div>
+        <div class="row advanced hidden">
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
             </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+        </div>
+        <div class="row advanced hidden">
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+            <div class="column grid_1">
+                <h3>MEER INFO</h3>
+            </div>
+        </div>
+        <div class="resize">
+            <a {{action "toggleAdvancedSearch"}} href>SHOW ALL PROJECT DETAILS <div class="resize-up"></div></a>
+            <a {{action "toggleAdvancedSearch"}} href class="hidden">NORMAL VIEW <div class="resize-down"></div></a>
         </div>
     {% endtplhandlebars %}
     
@@ -122,7 +151,7 @@
             <li>Fund</li>
             <li>Act</li>
             <li>Results</li>
-        </ul><div class="widget">
+        </ul>
         
         <div>    
             <div class="half green left">
@@ -198,8 +227,23 @@
                     </div>
                 </div>
             </div>
+            <div class="advanced hidden row">
+                <div class="column grid_1">
+                    A
+                </div>
+                <div class="column grid_1">
+                    A
+                </div>
+                <div class="column grid_1">
+                    A
+                </div>
+                <div class="column grid_1">
+                    A
+                </div>
+            </div>
             <div class="resize">
-                <a href>OPEN ADVANCED SEARCH</a>
+                <a {{action "toggleAdvancedSearch"}} href>OPEN ADVANCED SEARCH <div class="resize-up"></div></a>
+                <a {{action "toggleAdvancedSearch"}} href class="hidden">CLOSE ADVANCED SEARCH <div class="resize-down"></div></a>
             </div>
         </div>
     {% endtplhandlebars %}
