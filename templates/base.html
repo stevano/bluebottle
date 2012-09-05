@@ -1,7 +1,10 @@
+{% load i18n %}
+
 {% comment %} Use url tag from Django 1.5. {% endcomment %}
 {% load url from future %}
 {% load templatetag_handlebars %}
 
+{% load i18n %}
 {% load compress %}<!DOCTYPE HTML>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
@@ -73,7 +76,6 @@
                 </div>
             {% endtplhandlebars %}
 
-
             {% block content %}
             {% endblock %}
         </div>
@@ -106,7 +108,7 @@
                             </div>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}?next={% firstof request.path "/" %}">LOG IN</a>
+                        <a href="{% url 'login' %}?next={% firstof request.path "/" %}">Log in</a>
                     {% endif %}
                 </div>
                 <div class="search">
@@ -150,6 +152,8 @@
             </div>
         </div>
     </div>
+
+    <div id="git-revision">{% blocktrans %}Revision: {{ GIT_REVISION }}{% endblocktrans %}</div>
 
 </body>
 </html>
