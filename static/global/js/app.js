@@ -109,6 +109,18 @@ App.Router = Em.Router.extend({
     root: App.RootRoute
 });
 
+App.ResizeSectionButtonView = Em.View.extend({
+    value: 'Click me',
+    tagName: 'button',
+});
+
+App.ResizeSectionView = Em.View.extend({
+    templateName: 'resize-section',
+});
+
+
+
+
 $(function() {
     App.initialize();
 });

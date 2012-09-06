@@ -81,11 +81,17 @@
                 <h3>MEER INFO</h3>
             </div>
         </div>
+        {{view "App.ResizeSectionView" }}
+    {% endtplhandlebars %}
+
+    {% tplhandlebars "resize-section" %}
         <div class="resize">
-            <a {{action "toggleAdvancedSearch"}} href>SHOW ALL PROJECT DETAILS <div class="resize-up"></div></a>
-            <a {{action "toggleAdvancedSearch"}} href class="hidden">NORMAL VIEW <div class="resize-down"></div></a>
+            {{view "App.ResizeSectionButtonView" value="More"}}
+            {{view "App.ResizeSectionButtonView" value="Less"}}
         </div>
     {% endtplhandlebars %}
+    
+    
     
     {% tplhandlebars "project-media" %}
         <div class="viewer">
