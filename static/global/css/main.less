@@ -875,16 +875,15 @@ ul.categories {
 }
 
 .resize {
-  a {
-    display: block;
-    color: @green;
-    margin: 6px;
-  }
-  a.hidden {
+  .up .up,
+  .down .down {
     display: none;
   }
-  
-
+  div {
+    color: @green;
+    margin: 6px;
+    cursor: pointer;
+  }
   .resize-up,
   .resize-down {
     width: 14px;

@@ -120,16 +120,31 @@ App.Router = Em.Router.extend({
     root: App.RootRoute
 });
 
-App.ResizeSectionButtonView = Em.View.extend({
-    value: 'Click me',
-    tagName: 'button',
-});
 
+// Views to to show/hide advanced view 
 App.ResizeSectionView = Em.View.extend({
     templateName: 'resize-section',
 });
 
-
+App.ResizeSectionToggleView = Em.View.extend({
+    tagName: 'div',
+    classNameBindings: ['status'],
+    status: 'down',
+    toggleStatus: function(){
+        if (this.get('status') == 'down') {
+            this.set('status', 'up');
+        } else {
+            this.set('status', 'down');
+        }
+        this.$('.up').parents('.section').find('.advanced').slideToggle();
+    },
+    
+    click: function(){
+        this.toggleStatus();
+        console.log(this.status)
+    }
+    
+});
 
 
 $(function() {

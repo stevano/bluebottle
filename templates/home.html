@@ -86,8 +86,14 @@
 
     {% tplhandlebars "resize-section" %}
         <div class="resize">
-            {{view "App.ResizeSectionButtonView" value="More"}}
-            {{view "App.ResizeSectionButtonView" value="Less"}}
+            {{#view "App.ResizeSectionToggleView"}}
+                <span class="up">
+                    OPEN ADVANCED VIEW <span class="resize-up"></span>
+                </span>
+                <span class="down">
+                    CLOSE ADVANCED VIEW <span class="resize-down"></span>
+                </span>
+            {{/view}}
         </div>
     {% endtplhandlebars %}
     
@@ -253,10 +259,7 @@
                     A
                 </div>
             </div>
-            <div class="resize">
-                <a {{action "toggleAdvancedSearch"}} href>OPEN ADVANCED SEARCH <div class="resize-up"></div></a>
-                <a {{action "toggleAdvancedSearch"}} href class="hidden">CLOSE ADVANCED SEARCH <div class="resize-down"></div></a>
-            </div>
+            {{view "App.ResizeSectionView" }}
         </div>
     {% endtplhandlebars %}
 
