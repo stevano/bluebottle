@@ -1,18 +1,6 @@
 App = Em.Application.create({
     rootElement : '#content',
     
-    // Check if a current state is in projects
-    inProjects: function() {
-        return false;
-    },
-
-    updateRouter : function() {
-        var router = this.get('router');
-        router.init();
-        console.log(router)
-        console.log('Don\'t know how to update the router, yet....')
-    },
-
     // Define the main application controller. This is automatically picked up by
     // the application and initialized.
     ApplicationController : Em.Controller.extend({
@@ -66,15 +54,6 @@ App.ProjectRoute = Em.Route.extend({
     // The project detail state.
     detail: Em.Route.extend({
         route: '/:project_slug',
-        changeMediaViewer: function(router, event){
-            //TODO: is there a better way to do this?
-            $(event.srcElement).parents('ul.nav').find('li').removeClass('active');
-            $(event.srcElement).parent('li').addClass('active');
-            var name = event.srcElement.name;
-            $("li", ".viewer").addClass("hidden");
-            $("#pane_"+name).removeClass("hidden");
-            
-        },
         deserialize: function(router, params) {
             return {slug: params.project_slug}
         },
