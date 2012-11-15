@@ -66,6 +66,14 @@ DS.DRF2Adapter = DS.RESTAdapter.extend({
     // If there's multiple items they
     // will be in .results
     if (json.results) {
+        if (store.meta == undefined) {
+            store.meta = new Array()
+        }
+        store.setMeta(type, {
+            'count': json.count,
+            'previous': json.previous,
+            'next': json.next,
+        });
         store.loadMany(type, json.results);
     } else {
         var id = json.id ? json.id : null;
