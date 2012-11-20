@@ -1,8 +1,7 @@
 from django.db import models
-from apps.love.models import LovableModel
 
 
-class TestBlogPost(LovableModel):
+class TestBlogPost(models.Model):
     """
     A model that is used for testing.
     """
