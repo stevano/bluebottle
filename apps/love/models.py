@@ -12,10 +12,11 @@ class LoveDeclaration(models.Model):
     A "like" or "favourite" marker expressed by the user for a given object.
     """
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    # TODO: should this be object_id? change reactions??
+    object_id = models.PositiveIntegerField(_('object ID'))
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    creation_date = CreationDateTimeField(_('creation date'))
+    created = CreationDateTimeField(_('created'))
     user = models.ForeignKey(User, editable=False)
 
     objects = LoveDeclarationManager()

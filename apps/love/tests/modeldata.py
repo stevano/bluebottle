@@ -55,21 +55,21 @@ class LoveTest(CustomSettingsTestCase):
 
         # Basic counting
         self.assertEquals(LoveDeclaration.objects.count(), 3, "expected 3 loves in the database now")
-        self.assertEquals(LoveDeclaration.objects.for_object(post2).count(), 0, "expected no love for post-2")
+        self.assertEquals(LoveDeclaration.objects.for_model(post2).count(), 0, "expected no love for post-2")
 
         # Test via user dimension
         self.assertEquals(LoveDeclaration.objects.by_user(user1).count(), 1, "expected 1 love by user1")
         self.assertEquals(LoveDeclaration.objects.by_user(user2).count(), 2, "expected 2 loves by user2")
 
         # Test via object dimension
-        self.assertEquals(sorted(LoveDeclaration.objects.for_object(post1).values_list('user__username', flat=True)), ['user1', 'user2'], "expected 2 love entries for post-1")
-        self.assertEquals(sorted(LoveDeclaration.objects.for_object(post3).values_list('user__username', flat=True)), ['user2'], "expected 1 love entries for post-1")
+        self.assertEquals(sorted(LoveDeclaration.objects.for_model(post1).values_list('user__username', flat=True)), ['user1', 'user2'], "expected 2 love entries for post-1")
+        self.assertEquals(sorted(LoveDeclaration.objects.for_model(post3).values_list('user__username', flat=True)), ['user2'], "expected 1 love entries for post-1")
 
         # Test reading loves via related field
-        self.assertEqual(LoveDeclaration.objects.for_object(post1).count(), 2)
-        self.assertEqual(LoveDeclaration.objects.for_object(post2).count(), 0)
-        self.assertEqual(LoveDeclaration.objects.for_object(post3).count(), 1)
-        self.assertEqual(sorted(LoveDeclaration.objects.for_object(post1).values_list('user__username', flat=True)), ['user1', 'user2'])
+        self.assertEqual(LoveDeclaration.objects.for_model(post1).count(), 2)
+        self.assertEqual(LoveDeclaration.objects.for_model(post2).count(), 0)
+        self.assertEqual(LoveDeclaration.objects.for_model(post3).count(), 1)
+        self.assertEqual(sorted(LoveDeclaration.objects.for_model(post1).values_list('user__username', flat=True)), ['user1', 'user2'])
 
         # Test bulk methods
         all_blog_loves = LoveDeclaration.objects.for_objects(TestBlogPost.objects.all())
@@ -78,7 +78,7 @@ class LoveTest(CustomSettingsTestCase):
 
         # Test unloving, have 1 remaining
         LoveDeclaration.objects.unmark_as_loved(post1, user1)
-        self.assertEquals(sorted(LoveDeclaration.objects.for_object(post1).values_list('user__username', flat=True)), ['user2'], "expected 1 love entries for post-1")
+        self.assertEquals(sorted(LoveDeclaration.objects.for_model(post1).values_list('user__username', flat=True)), ['user2'], "expected 1 love entries for post-1")
 
 
     def test_overwhelming_love(self):
@@ -91,7 +91,7 @@ class LoveTest(CustomSettingsTestCase):
         LoveDeclaration.objects.mark_as_loved(post1, user1)
         LoveDeclaration.objects.mark_as_loved(post1, user1)  # This should be a no-op
 
-        self.assertEqual(LoveDeclaration.objects.for_object(post1).by_user(user1).count(), 1, "Expected second love to be a no-op")
+        self.assertEqual(LoveDeclaration.objects.for_model(post1).by_user(user1).count(), 1, "Expected second love to be a no-op")
 
 
     def test_duplicate_unlove(self):
@@ -105,4 +105,4 @@ class LoveTest(CustomSettingsTestCase):
         LoveDeclaration.objects.unmark_as_loved(post1, user1)
         LoveDeclaration.objects.unmark_as_loved(post1, user1)
 
-        self.assertEqual(LoveDeclaration.objects.for_object(post1).by_user(user1).count(), 0, "Expected post1 to have 0 loves by user1")
+        self.assertEqual(LoveDeclaration.objects.for_model(post1).by_user(user1).count(), 0, "Expected post1 to have 0 loves by user1")

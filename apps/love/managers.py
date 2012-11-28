@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
 from django.db.models.query import QuerySet
+from django.utils.encoding import force_unicode
 
 
 class LoveDeclarationQueryMixin(object):
@@ -19,18 +20,13 @@ class LoveDeclarationQueryMixin(object):
 
     def for_model(self, model):
         """
-        Returns LoveDeclaration objects for a specific model.
+        QuerySet for all LoveDeclarations for a particular model (either an instance or a class).
         """
-        content_type = ContentType.objects.get_for_model(model)
-        return self.filter(content_type=content_type)
-
-
-    def for_object(self, obj):
-        """
-        Returns Favorites for a specific object.
-        """
-        content_type = ContentType.objects.get_for_model(type(obj))
-        return self.filter(content_type=content_type, object_id=obj.pk)
+        ct = ContentType.objects.get_for_model(model)
+        qs = self.get_query_set().filter(content_type=ct)
+        if isinstance(model, models.Model):
+            qs = qs.filter(object_id=force_unicode(model._get_pk_val()))
+        return qs
 
 
     def for_objects(self, object_list, user=None):
@@ -61,11 +57,15 @@ class LoveDeclarationQueryMixin(object):
 
         return results
 
+    def for_content_type(self, content_type):
+        """ QuerySet for all LoveDeclarations for particular content_type. """
+
+        return self.get_query_set().filter(content_type=content_type)
+
 
 class LoveDeclarationManagerQuerySet(LoveDeclarationQueryMixin, QuerySet):
-    """
-    QuerySet chaining methods for ``LoveDeclaration.objects``.
-    """
+    """ QuerySet chaining methods for ``LoveDeclaration.objects``. """
+
     pass
 
 
@@ -73,6 +73,7 @@ class LoveDeclarationManager(LoveDeclarationQueryMixin, models.Manager):
     """
     Methods for ``LoveDeclaration.objects``.
     """
+
     def get_query_set(self):
         return LoveDeclarationManagerQuerySet(self.model, using=self._db)
 
@@ -94,12 +95,11 @@ class LoveDeclarationManager(LoveDeclarationQueryMixin, models.Manager):
             return self.get(**args)
 
 
-
     def unmark_as_loved(self, content_object, user):
         """
         Unmark an object as loved.
         """
-        self.for_object(content_object).by_user(user).delete()
+        self.for_model(content_object).by_user(user).delete()
 
 
     mark_as_loved.alters_data = True

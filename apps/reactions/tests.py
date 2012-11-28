@@ -1,4 +1,3 @@
-from apps.blogs.views import BlogPostList, BlogPostDetail
 from apps.bluebottle_utils.tests import BlogPostCreationMixin
 from django.test import TestCase
 from rest_framework import status
@@ -44,7 +43,7 @@ class ReactionApiIntegrationTest(BlogPostCreationMixin, TestCase):
         self.assertEqual(response.data['reaction'], new_reaction_text)
 
         # Delete reaction.
-        response = self.client.delete(reaction_detail_url, {'reaction': new_reaction_text})
+        response = self.client.delete(reaction_detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response)
 
 
