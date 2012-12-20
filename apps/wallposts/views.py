@@ -4,20 +4,18 @@ from .serializers import WallPostSerializer
 from .models import WallPost
 
 
-class WallPostList(generics.ListAPIView):
+class WallPostList(generics.ListCreateAPIView):
     model = WallPost
     serializer_class = WallPostSerializer
     paginate_by = 10
 
-    def _get_wallposts_for_instance(self):
-        reaction_to_type = ContentType.objects.get_for_id(self.kwargs['content_type'])
-        return reaction_to_type.get_object_for_this_type(slug=self.kwargs['slug'])
-
     def get_queryset(self):
-        reaction_to_instance = self._get_wallposts_for_instance()
-        objects = self.model.objects.for_content_type(self.kwargs['content_type'])
+        type = self.request.QUERY_PARAMS['type']
+        id = self.request.QUERY_PARAMS['id']
+        content_type = ContentType.objects.get(model=type)
+        objects = self.model.objects
         objects = objects.order_by("-created")
-        return objects.filter(object_id=reaction_to_instance.id)
+        return objects.filter(content_type=content_type, object_id=id)
 
 
 
