@@ -10,7 +10,7 @@ class GenericForeignKeyManagerMixin(object):
 
     def for_model(self, model):
         """
-        QuerySet for all reactions for a particular model (either an instance or a class).
+        QuerySet for all objects for a particular model (either an instance or a class).
         """
         ct = ContentType.objects.get_for_model(model)
         qs = self.get_query_set().filter(content_type=ct)
@@ -23,3 +23,13 @@ class GenericForeignKeyManagerMixin(object):
         QuerySet for all models for particular content_type.
         """
         return self.get_query_set().filter(content_type=content_type)
+    
+    def for_type_and_id(self, **kwargs):
+        if not kwargs.get('type'):
+            raise Exception("type (content_type model name) not set")
+        if not kwargs.get('id'):
+            raise Exception("id (object_id) not set")
+            type = self.request.QUERY_PARAMS['type']
+        id = kwargs.get('id')
+        content_type = ContentType.objects.get(model=type)
+        return self.filter(content_type=content_type, object_id=id)
