@@ -86,7 +86,7 @@
                     <span class="error">{{this}}</span>
                 {{/each}}
                 <label for="wallpost-update" class="inline">{% trans "Leave your comment here" %}</label>
-                {{view Ember.TextArea valueBinding="content.text" cols="50" rows="4" name="wallpost-update" id="wallpost-update"}}
+                {{view Ember.TextArea valueBinding="text" cols="50" rows="4" name="wallpost-update" id="wallpost-update"}}
             </li>
         </ul>
     </fieldset>
@@ -131,7 +131,7 @@
             <div class="video">{{{video_html}}}</div>
         {{/if}}
 
-        {{text}}
+        {{{text}}}
 
         {# This is temporary and will go away when we figure out how to upload related photos. #}
         {{#if photo}}
@@ -160,6 +160,7 @@
     <!-- reaction-box -->
     <div class="reaction-box">
         {{view "App.WallPostReactionFormView"}}
+
         <ul class="reaction-actions not-implemented">
             <li><a class="toggle-reactions" data-content="2 Comments" data-content-hover="Show comments" data-content-toggled="2 Comments" data-content-toggled-hover="Hide comments">{{reactions.length}} Comments</a></li>
             <li><a class="toggle-love" data-content="22 love this" data-content-hover="Show your love!" data-content-toggled="23 - You loved this" data-content-toggled-hover="Unlove?">22 love this</a></li>

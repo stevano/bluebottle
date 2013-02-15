@@ -2,23 +2,46 @@
  Models
  */
 
+// Maybe we can move this to the currentOrderController?
+App.bankList = [
+    Ember.Object.create({value:"0081", title: "Fortis"}),
+    Ember.Object.create({value:"0021", title: "Rabobank"}),
+    Ember.Object.create({value:"0721", title: "ING Bank"}),
+    Ember.Object.create({value:"0751", title: "SNS Bank"}),
+    Ember.Object.create({value:"0031", title: "ABN Amro Bank"}),
+    Ember.Object.create({value:"0761", title: "ASN Bank"}),
+    Ember.Object.create({value:"0771", title: "SNS Regio Bank"}),
+    Ember.Object.create({value:"0511", title: "Triodos Bank"}),
+    Ember.Object.create({value:"0091", title: "Friesland Bank"}),
+    Ember.Object.create({value:"0161", title: "Van Lanschot Bankiers"})
+];
+
+App.PaymentMethod = DS.Model.extend({
+    url: 'fund/paymentmethods',
+    name: DS.attr('string'),
+    order: DS.belongsTo('App.Order')
+});
+
 App.Order = DS.Model.extend({
     url: 'fund/orders',
     amount: DS.attr('number'),
     status: DS.attr('string'),
-    recurring: DS.attr('string')
+    recurring: DS.attr('string'),
+    payment_method_id: DS.attr('string'),
+    payment_submethod_id: DS.attr('string'),
+    payment_methods: DS.hasMany('App.PaymentMethod')
 });
 
 
-App.OrderProfile = DS.Model.extend({
-    url: 'fund/orders/profiles',
+App.PaymentOrderProfile = DS.Model.extend({
+    url: 'fund/paymentorderprofiles',
     firstName: DS.attr('string'),
     lastName: DS.attr('string'),
     email: DS.attr('string'),
-    address: DS.attr('string'),
+    street: DS.attr('string'),
     city: DS.attr('string'),
     country: DS.attr('string'),
-    zipCode: DS.attr('string')
+    postalCode: DS.attr('string')
 });
 
 App.OrderItem = DS.Model.extend({
@@ -69,9 +92,18 @@ App.PaymentInfo = DS.Model.extend({
 });
 
 
+App.PaymentMethodInfo = DS.Model.extend({
+    url: 'fund/paymentmethodinfo',
+    payment_url: DS.attr('string'),
+    bank_account_number: DS.attr('string'),
+    bank_account_name: DS.attr('string'),
+    bank_account_city: DS.attr('string'),
+});
+
+
 App.Payment = DS.Model.extend({
     url: 'fund/payments',
-    payment_method: DS.attr('number'),
+    payment_method: DS.attr('string'),
     amount: DS.attr('number'),
     status: DS.attr('string')
 });
@@ -101,8 +133,7 @@ App.CurrentOrderItemListController = Em.ArrayController.extend({
 
 
 
-App.OrderProfileController = Em.ObjectController.extend({
-    transaction: null,
+App.PaymentOrderProfileController = Em.ObjectController.extend({
 
     initTransaction: function(){
         var transaction = App.store.transaction();
@@ -116,33 +147,65 @@ App.OrderProfileController = Em.ObjectController.extend({
         // We should at least have an email address
         if (!profile.get('isDirty') && profile.get('email')) {
             // No changes. No need to commit.
-            controller.transitionTo('orderPayment');
+            controller.transitionTo('currentPaymentMethodInfo');
         }
         this.get('transaction').commit();
         profile.on('didUpdate', function(record) {
-            controller.transitionTo('orderPayment');
+            controller.transitionTo('currentPaymentMethodInfo');
         });
         // TODO: Validate data and return errors here
         profile.on('becameInvalid', function(record) {
-            //profile.set('errors', record.get('errors'));
+            controller.get('content').set('errors', record.get('errors'));
+
         });
     }
 });
 
+
 App.CurrentOrderController = Em.ObjectController.extend({
-    isMonthly: function(){
-        return this.get('content.monthly');
-    }.property('content.monthly'),
-    isSingle: function(){
-        return !this.get('content.monthly');
-    }.property('content.monthly'),
-    selectMonthly: function(){
-        this.set('content.monthly', true);
-    },
-    selectSingle: function(){
-        this.set('content.monthly', false);
-    }
-})
+
+    isIdeal: function(){
+        return (this.get('content.payment_method_id') == 'dd-ideal');
+    }.property('content.payment_method_id'),
+
+    isDirectDebit: function(){
+        return (this.get('content.payment_method_id') == 'dd-direct-debit');
+    }.property('content.payment_method_id'),
+
+    initTransaction: function(){
+        var order = this.get('content');
+        var transaction = App.get('store').transaction();
+        this.set('transaction', transaction);
+        transaction.add(order);
+    }.observes('content'),
+
+    updateOrder: function(){
+        if (this.get('content.isDirty')) {
+            var controller = this;
+            var order = this.get('content');
+            this.get('transaction').commit();
+            order.on('didUpdate', function(record){
+                // Init a new private transaction.
+                controller.initTransaction();
+            });
+
+
+        }
+    }.observes('content.isDirty')
+});
+
+
+App.CurrentOrderPaymentController = Em.ObjectController.extend({
+    contentBinding: App.CurrentOrderController.content
+});
+
+
+
+App.CurrentPaymentMethodInfoController = Em.ObjectController.extend({
+
+});
+
+
 
 /*
  Views
@@ -153,10 +216,11 @@ App.CurrentOrderView = Em.View.extend({
 });
 
 
-App.OrderProfileView = Em.View.extend({
-    templateName: 'order_profile_form',
+App.PaymentOrderProfileView = Em.View.extend({
+    templateName: 'payment_order_profile',
     tagName: 'form',
-    submit: function(){
+    submit: function(e){
+        e.preventDefault();
         this.controller.updateProfile();
     }
 });
@@ -185,7 +249,16 @@ App.CurrentOrderItemView = Em.View.extend({
 
     change: function(e){
         this.get('controller').updateOrderItem(this.get('content'), Em.get(e, 'target.value'));
+    },
+
+    delete: function(item){
+        var controller = this.get('controller');
+        this.$().slideUp(500, function(){controller.deleteOrderItem(item)});
+    },
+    submit: function(e){
+        e.preventDefault();
     }
+
 });
 
 
@@ -215,13 +288,32 @@ App.OrderNavView = Ember.View.extend({
 });
 
 
-App.OrderPaymentView = Em.View.extend({
-    tagName: 'form',
+App.CurrentOrderPaymentView = Em.View.extend({
+    tagName: 'div',
+    classNames: ['content'],
     templateName: 'order_payment'
 });
 
 
-App.PaymentInfoView = Em.View.extend({
-    tagName: 'form',
-    templateName: 'payment_info'
+App.CurrentPaymentMethodInfoView = Em.View.extend({
+    tagName: 'div',
+    templateName: 'payment_method_info'
 });
+
+
+App.IdealPaymentMethodInfoView = Em.View.extend({
+    tagName: 'form',
+    templateName: 'ideal_payment_method_info'
+});
+
+
+App.DirectDebitPaymentMethodInfoView = Em.View.extend({
+    tagName: 'form',
+    templateName: 'direct_debit_payment_method_info',
+
+    submit: function(e){
+        e.preventDefault();
+    }
+});
+
+
