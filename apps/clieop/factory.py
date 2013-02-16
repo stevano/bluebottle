@@ -1,4 +1,6 @@
-from apps.clieop.models import ClieopBatch, ClieopLine, ClieopDirectDebitLine, ClieopPaymentLine
+# Based on php file
+from datetime import datetime
+from apps.clieop.models import ClieopBatch, ClieopDirectDebitLine, ClieopPaymentLine
 
 
 class ClieopFactory(object):
@@ -82,4 +84,11 @@ class ClieopFactory(object):
         text += "1";											#duplicaat code
         text += $this->filler(21);	
         """
+        # Info Code
+        text = "0001"
+        # Variant code
+        text += "A"
+        text += datetime.strftime('dmY')
+        text += "CLIEOP03"
+        text += "1"
         pass
