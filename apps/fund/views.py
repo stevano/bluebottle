@@ -9,9 +9,8 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework import response
 from rest_framework import generics
-from rest_framework import views
-from .models import Donation, OrderItem, Order
-from .serializers import (DonationSerializer, OrderItemSerializer, OrderSerializer)
+from .models import Donation, OrderItem, Order, Voucher
+from .serializers import DonationSerializer, OrderItemSerializer, OrderSerializer, VoucherSerializer
 from .utils import get_order_payment_methods
 
 # API views
@@ -41,7 +40,6 @@ class CurrentOrderMixin(object):
             else:
                 # No order_id in session. Return None
                 return None
-
         order.payment.amount = int(100 * order.amount)
         order.payment.currency = 'EUR'
         order.payment.save()
@@ -124,17 +122,11 @@ class OrderCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_object(self, queryset=None):
+        # For now generate payment url over here.
         order = self.get_or_create_current_order()
-
-        # Not sure if this is the best place to generate the payment url.
+        # This will save it in pm info.
         if order.payment.payment_method_id:
-            if self.request.is_secure():
-                protocol = 'https://'
-            else:
-                protocol = 'http://'
-
-            # Getting the payment url with this method will save the url into the payment method info object.
-            payments.get_payment_url(order.payment, '{0}{1}'.format(protocol, self.request.get_host()))
+            payments.get_payment_url(order.payment)
         return order
 
     def put(self, request, *args, **kwargs):
@@ -300,8 +292,7 @@ class PaymentMethodList(CurrentOrderMixin, generics.GenericAPIView):
         """
         order = self.get_or_create_current_order()
         ids = request.QUERY_PARAMS.getlist('ids[]', [])
-        pms = factory.get_payment_methods(amount=order.amount, currency='EUR', country='NL', recurring=order.recurring,
-                                          pm_ids=ids)
+        pms = factory.get_payment_methods(amount=order.amount, currency='EUR', country='NL', recurring=order.recurring, ids=ids)
         serializer = self.get_serializer(pms)
         return response.Response(serializer.data)
 
@@ -330,7 +321,7 @@ class PaymentMethodInfoCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView
                     order.save()
                 else:
                     return None
-            # TODO: Use cowry factory for this?
+                # TODO: Use cowry factory for this?
             # TODO: Hardcoded stuff is fun! should fix this though.
             if order.recurring:
                 payment_method_object = DocDataWebDirectDirectDebit(docdata_payment_order=order.payment)
@@ -340,4 +331,52 @@ class PaymentMethodInfoCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView
         return order.payment.latest_docdata_payment
 
 
+class OrderVoucherList(CurrentOrderMixin, generics.ListCreateAPIView):
+    model = Voucher
+    serializer_class = VoucherSerializer
+    permissions_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    paginate_by = 100
 
+    def get_queryset(self):
+        # Filter queryset for the current order
+        order = self.get_or_create_current_order()
+        orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(Voucher))
+        queryset = Voucher.objects.filter(id__in=orderitems.values('object_id'))
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        order = self.get_or_create_current_order()
+        serializer = self.get_serializer(data=request.DATA)
+        if serializer.is_valid():
+            self.pre_save(serializer.object)
+            voucher = serializer.save()
+
+            if request.user.is_authenticated():
+                voucher.user = request.user
+            voucher.save()
+            orderitem = OrderItem.objects.create(content_object=voucher, order=order)
+            orderitem.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderVoucherDetail(CurrentOrderMixin, generics.RetrieveUpdateDestroyAPIView):
+    model = Voucher
+    serializer_class = VoucherSerializer
+
+    def get_queryset(self):
+        # Filter queryset for the current order
+        order = self.get_or_create_current_order()
+        orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(Voucher))
+        queryset = Voucher.objects.filter(id__in=orderitems.values('object_id'))
+        return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        # Tidy up! Delete related OrderItem, if any.
+        obj = self.get_object()
+        ct = ContentType.objects.get_for_model(obj)
+        order_item = OrderItem.objects.filter(object_id=obj.id, content_type=ct)
+        if order_item:
+            order_item.delete()
+        obj.delete()
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
