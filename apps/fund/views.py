@@ -32,10 +32,10 @@ class CurrentOrderMixin(object):
     """
 
     def _update_payment(self, order):
-        if order.amount:
+        if order.amount and order.payment:
             order.payment.amount = order.amount
-        order.payment.currency = 'EUR'  # The default currency for now.
-        order.payment.save()
+            order.payment.currency = 'EUR'  # The default currency for now.
+            order.payment.save()
 
     def get_current_order(self):
         if self.request.user.is_authenticated():
