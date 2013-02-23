@@ -1,20 +1,26 @@
+import threading
 from apps.cowry_docdata.models import DocDataPaymentOrder, DocDataWebDirectDirectDebit, DocDataWebMenu
 from apps.cowry_docdata.serializers import DocDataOrderProfileSerializer, DocDataPaymentMethodSerializer
-from apps.fund.serializers import PaymentMethodSerializer
+from apps.fund.models import process_voucher_order_in_progress, process_donation_order_in_progress
 from django.contrib.contenttypes.models import ContentType
 from apps.cowry import payments, factory
 from apps.bluebottle_drf2.permissions import AllowNone
-from apps.bluebottle_drf2.views import ListAPIView, RetrieveAPIView
+from apps.bluebottle_drf2.views import ListAPIView
+from django.db import transaction
+from django.http import Http404
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import response
 from rest_framework import generics
-from rest_framework import views
-from .models import Donation, OrderItem, Order
-from .serializers import (DonationSerializer, OrderItemSerializer, OrderSerializer)
-from .utils import get_order_payment_methods
+from django.utils.translation import ugettext as _
+from .models import Donation, OrderItem, Order, Voucher
+from .serializers import (DonationSerializer, OrderItemSerializer, OrderSerializer, VoucherSerializer,
+                          PaymentMethodSerializer)
 
-# API views
+
+# Lock used in the CurrentOrderMixin. It needs to be outside of Mixin so it's created more than once.
+order_lock = threading.Lock()
+
 
 class CurrentOrderMixin(object):
     """
@@ -23,52 +29,87 @@ class CurrentOrderMixin(object):
     Latest Order is the latest order by a user.
     """
 
+    def _update_payment(self, order):
+        if order.amount:
+            order.payment.amount = order.amount
+        order.payment.currency = 'EUR'  # The default currency for now.
+        order.payment.save()
+
     def get_current_order(self):
         if self.request.user.is_authenticated():
             try:
                 order = Order.objects.get(user=self.request.user, status=Order.OrderStatuses.started)
+                if not self.has_permission(self.request, order):
+                    self.permission_denied(self.request)
+                self._update_payment(order)
+                return order
             except Order.DoesNotExist:
                 return None
         else:
-            # For an anonymous user the order (cart) might be stored in the session
-            order_id = self.request.session.get("cart_session")
+            order_id = self.request.session.get('cart_order_id')
             if order_id:
                 try:
                     order = Order.objects.get(id=order_id, status=Order.OrderStatuses.started)
+                    if not self.has_permission(self.request, order):
+                        self.permission_denied(self.request)
+                    self._update_payment(order)
+                    return order
                 except Order.DoesNotExist:
-                    # The order_id was not a cart in the db, return None
                     return None
             else:
-                # No order_id in session. Return None
                 return None
-        order.payment.amount = int(100 * order.amount)
-        order.payment.currency = 'EUR'
-        order.payment.save()
-        return order
 
     def get_or_create_current_order(self):
-        order = self.get_current_order()
-        if not order:
-            order = self.create_current_order()
+        created = False
+        if self.request.user.is_authenticated():
+            # Critical section to avoid duplicate orders.
+            with order_lock:
+                with transaction.commit_on_success():
+                    order, created = Order.objects.get_or_create(user=self.request.user, status=Order.OrderStatuses.started)
+
+                # We're currently only using DocData so we can directly connect the DocData payment order to the order.
+                # Note that Order still has a foreign key to 'cowry.Payment'. In the future, we can create the payment
+                # at a later stage in the order process using cowry's 'factory.create_new_payment(amount, currency)'.
+                if created:
+                    payment = DocDataPaymentOrder()
+                    payment.save()
+                    order.payment = payment
+                    order.save()
+        else:
+            # Critical section to avoid duplicate orders.
+            # FIXME: This is broken.
+            with order_lock:
+                # For an anonymous user the order (cart) might be stored in the session
+                order_id = self.request.session.get('cart_order_id')
+                if order_id:
+                    try:
+                        order = Order.objects.get(id=order_id, status=Order.OrderStatuses.started)
+                    except Order.DoesNotExist:
+                        # Set order_id to None so that a new order is created if it's been cleared
+                        # from our db for some reason.
+                        order_id = None
+
+                if not order_id:
+                    with transaction.commit_on_success():
+                        order = Order()
+                        created = True
+                    # See comment above about creating this DocDataPaymentOrder here.
+                    payment = DocDataPaymentOrder()
+                    payment.save()
+                    order.payment = payment
+                    order.save()
+                    self.request.session['cart_order_id'] = order.id
+                    self.request.session.save()
+
+        # Update the payment amount if needed.
+        if not created:
+            self._update_payment(order)
+
         if not self.has_permission(self.request, order):
             self.permission_denied(self.request)
+
         return order
 
-    def create_current_order(self):
-        user = self.request.user
-        if user.is_authenticated():
-            order = Order(user=user)
-        else:
-            order = Order()
-        # We're currently only using DocData so we can directly connect the DocData payment order to the order. Note
-        # that Order still has a foreign key to 'cowry.Payment'. In the future, we can create the payment at a later
-        # stage in the order process using cowry's 'factory.create_new_payment(amount, currency)'.
-        payment = DocDataPaymentOrder()
-        payment.save()
-        order.payment = payment
-        order.save()
-        self.request.session["cart_session"] = order.id
-        return order
 
     def get_latest_order(self):
         if self.request.user.is_authenticated():
@@ -78,7 +119,7 @@ class CurrentOrderMixin(object):
                 return None
         else:
             # For an anonymous user the order (cart) might be stored in the session
-            order_id = self.request.session.get("cart_session")
+            order_id = self.request.session.get('cart_order_id')
             if order_id:
                 try:
                     order = Order.objects.get(id=order_id)
@@ -108,14 +149,16 @@ class OrderList(ListAPIView):
     permission_classes = (AllowNone,)
     paginate_by = 10
 
-
-class OrderDetail(RetrieveAPIView):
-    # TODO: Implement
-    model = Order
-    permission_classes = (AllowNone,)
-
 # End: Unimplemented API views
 
+
+# Order views:
+
+class OrderDetail(generics.RetrieveAPIView):
+    model = Order
+
+
+# Current Order views:
 
 class OrderCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView):
     model = Order
@@ -123,27 +166,31 @@ class OrderCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_object(self, queryset=None):
-        # For now generate payment url over here.
         order = self.get_or_create_current_order()
-        # This will save it in pm info.
+
+        # Not sure if this is the best place to generate the payment url.
         if order.payment.payment_method_id:
-            payments.get_payment_url(order.payment)
+            if self.request.is_secure():
+                protocol = 'https://'
+            else:
+                protocol = 'http://'
+
+            # Getting the payment url with this method will save the url into the payment method info object.
+            payments.get_payment_url(order.payment, '{0}{1}'.format(protocol, self.request.get_host()))
         return order
 
     def put(self, request, *args, **kwargs):
-        # for now we write payment method here because serializer isn't smart enough.
-        pm = request.DATA.get('payment_method_id', None)
-        if pm:
-            order = self.get_or_create_current_order()
-            order.payment.payment_method_id = pm
+        # For now we write payment method here because serializer isn't smart enough.
+        order = self.get_or_create_current_order()
+        pm_id = request.DATA.get('payment_method_id', None)
+        if pm_id:
+            order.payment.payment_method_id = pm_id
             order.payment.save()
 
-        psm = request.DATA.get('payment_submethod_id', None)
-        if psm:
-            order = self.get_or_create_current_order()
-            order.payment.payment_submethod_id = psm
+        psm_id = request.DATA.get('payment_submethod_id', None)
+        if psm_id:
+            order.payment.payment_submethod_id = psm_id
             order.payment.save()
-
 
         return self.update(request, *args, **kwargs)
 
@@ -159,6 +206,15 @@ class OrderItemList(CurrentOrderMixin, generics.ListAPIView):
         return order.orderitem_set.all()
 
 
+def process_order_in_progress(order):
+    """ Helper method for processing orders that have just been paid. """
+    for order_item in order.orderitem_set.all():
+        if order_item == "Voucher":
+            process_voucher_order_in_progress(order_item.content_object)
+        elif order_item == "Donation":
+            process_donation_order_in_progress(order_item.content_object)
+
+
 # Note: Not currently being used (but the OrderLatestDontationList is being used).
 class OrderLatestItemList(OrderItemList):
     """
@@ -170,14 +226,15 @@ class OrderLatestItemList(OrderItemList):
     def get_queryset(self):
         order = self.get_current_order()
         if order and order.payment:
-            payments.update_payment_status(order.payment)
-            # TODO: Have a proper check if donation went ok. Signals!
+            # FIXME Status updates aren't working.
+            # payments.update_payment_status(order.payment)
+            # FIXME: Check the status we get back from PSP and set order status accordingly.
             order.status = Order.OrderStatuses.pending
             order.save()
+            process_order_in_progress(order)
         else:
             order = self.get_latest_order()
 
-        order.status = Order.OrderStatuses.pending
         order.save()
         return order.orderitem_set.all()
 
@@ -185,70 +242,22 @@ class OrderLatestItemList(OrderItemList):
 class OrderLatestDonationList(CurrentOrderMixin, generics.ListAPIView):
     model = Donation
     serializer_class = DonationSerializer
-    paginate_by = 100
+    paginate_by = 50
 
     def get_queryset(self):
         order = self.get_current_order()
         if order and order.payment:
-            payments.update_payment_status(order.payment)
-            # TODO: Check the status we get back from PSP and set order status accordingly.
+            # FIXME Status updates aren't working.
+            # payments.update_payment_status(order.payment)
+            # FIXME: Check the status we get back from PSP and set order status accordingly.
             order.status = Order.OrderStatuses.pending
             order.save()
+            process_order_in_progress(order)
         else:
             order = self.get_latest_order()
         orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(Donation))
         queryset = Donation.objects.filter(id__in=orderitems.values('object_id'))
         return queryset
-
-
-class OrderDonationList(CurrentOrderMixin, generics.ListCreateAPIView):
-    model = Donation
-    serializer_class = DonationSerializer
-    paginate_by = 50
-
-    def get_queryset(self):
-        # Filter queryset for the current order
-        order = self.get_or_create_current_order()
-        orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(Donation))
-        queryset = Donation.objects.filter(id__in=orderitems.values('object_id'))
-        return queryset
-
-    def create(self, request, *args, **kwargs):
-        order = self.get_or_create_current_order()
-        serializer = self.get_serializer(data=request.DATA)
-        if serializer.is_valid():
-            self.pre_save(serializer.object)
-            donation = serializer.save()
-
-            if request.user.is_authenticated():
-                donation.user = request.user
-            donation.save()
-            orderitem = OrderItem.objects.create(content_object=donation, order=order)
-            orderitem.save()
-            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class OrderDonationDetail(CurrentOrderMixin, generics.RetrieveUpdateDestroyAPIView):
-    model = Donation
-    serializer_class = DonationSerializer
-
-    def get_queryset(self):
-        # Filter queryset for the current order
-        order = self.get_or_create_current_order()
-        orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(Donation))
-        queryset = Donation.objects.filter(id__in=orderitems.values('object_id'))
-        return queryset
-
-    def destroy(self, request, *args, **kwargs):
-        # Tidy up! Delete related OrderItem, if any.
-        obj = self.get_object()
-        ct = ContentType.objects.get_for_model(obj)
-        order_item = OrderItem.objects.filter(object_id=obj.id, content_type=ct)
-        if order_item:
-            order_item.delete()
-        obj.delete()
-        return response.Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PaymentOrderProfileCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView):
@@ -260,6 +269,8 @@ class PaymentOrderProfileCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIVi
     def get_object(self):
         order = self.get_or_create_current_order()
         payment = order.payment
+
+        # Pre-fill the order profile form if the user is authenticated.
         if payment and self.request.user.is_authenticated():
             payment.customer_id = self.request.user.id
             payment.email = self.request.user.email
@@ -292,9 +303,10 @@ class PaymentMethodList(CurrentOrderMixin, generics.GenericAPIView):
         Get the Payment methods form Cowry.
         """
         order = self.get_or_create_current_order()
-        ids = request.QUERY_PARAMS.getlist('ids[]', [])
-        pms = factory.get_payment_methods(amount=order.amount, currency='EUR', country='NL', recurring=order.recurring, ids=ids)
-        serializer = self.get_serializer(pms)
+        pm_ids = request.QUERY_PARAMS.getlist('ids[]', [])
+        payment_methods = factory.get_payment_methods(amount=order.amount, currency='EUR', country='NL',
+                                                      recurring=order.recurring, pm_ids=pm_ids)
+        serializer = self.get_serializer(payment_methods)
         return response.Response(serializer.data)
 
 
@@ -316,7 +328,8 @@ class PaymentMethodInfoCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView
         order = self.get_or_create_current_order()
         if not order.payment.latest_docdata_payment:
             if not order.payment.payment_method_id:
-                payment_methods = get_order_payment_methods(order)
+                payment_methods = factory.get_payment_method_ids(amount=order.amount, currency='EUR', country='NL',
+                                                                 recurring=order.recurring)
                 if payment_methods:
                     order.payment.payment_method_id = payment_methods[0]
                     order.save()
@@ -332,4 +345,81 @@ class PaymentMethodInfoCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView
         return order.payment.latest_docdata_payment
 
 
+# OrderItems
 
+class OrderItemMixin(object):
+
+    def get_queryset(self):
+        # Filter queryset for the current order
+        order = self.get_or_create_current_order()
+        orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(self.model))
+        queryset = self.model.objects.filter(id__in=orderitems.values('object_id'))
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        order = self.get_or_create_current_order()
+        serializer = self.get_serializer(data=request.DATA)
+        if serializer.is_valid():
+            self.pre_save(serializer.object)
+            obj = serializer.save()
+
+            if request.user.is_authenticated():
+                setattr(obj, self.user_field, request.user)
+            obj.save()
+            orderitem = OrderItem.objects.create(content_object=obj, order=order)
+            orderitem.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        # Tidy up! Delete related OrderItem, if any.
+        obj = self.get_object()
+        ct = ContentType.objects.get_for_model(obj)
+        order_item = OrderItem.objects.filter(object_id=obj.id, content_type=ct)
+        if order_item:
+            order_item.delete()
+        obj.delete()
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class OrderDonationList(OrderItemMixin, CurrentOrderMixin, generics.ListCreateAPIView):
+    model = Donation
+    serializer_class = DonationSerializer
+    paginate_by = 50
+    user_field = 'user'
+
+
+class OrderDonationDetail(OrderItemMixin, CurrentOrderMixin, generics.RetrieveUpdateDestroyAPIView):
+    model = Donation
+    serializer_class = DonationSerializer
+
+
+class OrderVoucherList(OrderItemMixin, CurrentOrderMixin, generics.ListCreateAPIView):
+    model = Voucher
+    serializer_class = VoucherSerializer
+    permissions_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    paginate_by = 50
+    user_field = 'sender'
+
+
+class OrderVoucherDetail(OrderItemMixin, CurrentOrderMixin, generics.RetrieveUpdateDestroyAPIView):
+    model = Voucher
+    serializer_class = VoucherSerializer
+
+
+class VoucherDetail(CurrentOrderMixin, generics.RetrieveAPIView):
+    model = Voucher
+    serializer_class = VoucherSerializer
+
+    def get_object(self, queryset=None):
+        """
+        Override default to add support for object-level permissions.
+        """
+        code = self.kwargs.get('code', None)
+        if not code:
+            raise Http404(_(u"No voucher code supplied."))
+        try:
+            obj = Voucher.objects.get(code=code)
+        except Voucher.DoesNotExist:
+            raise Http404(_(u"No voucher found matching the query"))
+        return obj

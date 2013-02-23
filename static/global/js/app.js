@@ -165,6 +165,7 @@ App.Member = DS.Model.extend({
 
 App.User = App.Member.extend({
     url: 'members',
+    email: DS.attr('string'),
 
     is_authenticated: function(){
         return (this.get('username'))  ? true : false;
@@ -210,10 +211,18 @@ App.Router.map(function() {
         this.resource('projectWallPost', {path: '/wallposts/:projectwallpost_id'});
     });
     this.resource('currentOrder', {path: '/support'}, function() {
+        // TODO Rename route to currentOrderDonationList??
         this.resource('currentOrderItemList', {path: ''}, function() {
             this.route('add', {path: '/add/:slug'});  // project slug
         });
+
+        this.resource('currentOrderVoucherList', {path: '/vouchers'}, function(){
+            this.resource('currentOrderVoucherAdd', {path: ''});
+        });
+
         this.resource('paymentOrderProfile', {path: '/details'});
+
+        // TODO: Read the manual to see if this is the best way to do it.
         this.resource('currentOrderPayment', {path: '/payment'}, function(){
             this.resource('currentPaymentMethodInfo', {path: 'info'});
         });
@@ -221,6 +230,16 @@ App.Router.map(function() {
 
     this.resource('finalOrderItemList', {path: '/support/thanks'}, function() {
     });
+
+    this.resource('voucherStart', {path: '/vouchers'}, function() {
+    });
+
+    this.resource('voucherRedeem', {path: '/vouchers/redeem'}, function() {
+        this.route('add', {path: '/add/:slug'});
+        this.route('code', {path: '/:code'});
+
+    });
+
 });
 
 
@@ -239,6 +258,10 @@ App.ProjectRoute = Ember.Route.extend(App.SlugRouter, {
     setupController: function(controller, project) {
         // Project detail controller.
         controller.set('content', project);
+
+        // Look if we've got an active voucher
+        var voucher = this.controllerFor('voucherRedeem').get('voucher');
+        controller.set('currentVoucher', voucher);
 
         // Wallposts list controller.
         var wallPostListController = this.controllerFor('projectWallPostList');
@@ -285,6 +308,17 @@ App.ProjectWallPostRoute = Ember.Route.extend({
 });
 
 
+App.CurrentOrderVoucherListRoute = Ember.Route.extend({
+    model: function(params) {
+        return App.CurrentVoucher.find();
+    },
+
+    setupController: function(controller, orderitems) {
+        controller.set('content', orderitems);
+    }
+});
+
+
 App.CurrentOrderRoute = Ember.Route.extend({
     model: function(params) {
         return App.Order.find('current');
@@ -292,9 +326,9 @@ App.CurrentOrderRoute = Ember.Route.extend({
 
     setupController: function(controller, order) {
         controller.set('content', order);
+        controller.set('isVoucherOrder', false);
     }
 });
-
 
 App.CurrentOrderItemListRoute = Ember.Route.extend({
 
@@ -304,6 +338,31 @@ App.CurrentOrderItemListRoute = Ember.Route.extend({
 
     setupController: function(controller, orderitems) {
         controller.set('content', orderitems);
+        this.controllerFor('currentOrder').set('isVoucherOrder', false);
+    }
+});
+
+
+App.CurrentOrderVoucherAddRoute = Ember.Route.extend({
+
+    setupController: function(controller) {
+        this.controllerFor('currentOrder').set('isVoucherOrder', true);
+        controller.createNewVoucher();
+    }
+});
+
+
+App.VoucherRedeemCodeRoute = Ember.Route.extend({
+
+    model: function(params) {
+        var voucher = App.Voucher.find(params['code']);
+        // We don't get the code from the server, but we want it to return it to the user here.
+        voucher.set('code', params['code']);
+        return voucher;
+    },
+
+    setupController: function(controller, voucher) {
+        this.controllerFor('voucherRedeem').set('voucher', voucher);
     }
 });
 

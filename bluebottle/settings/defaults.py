@@ -144,6 +144,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     # https://docs.djangoproject.com/en/1.4/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
 ]
 
 # Browsers will block our pages from loading in an iframe no matter which site
@@ -156,8 +157,6 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     # Makes the 'request' variable (the current HttpRequest)
     # available in templates
     'django.core.context_processors.request',
-    # Used for setting the git revision in the Django templates.
-    'gitrevision.context_processors.gitrevision',
 )
 
 ROOT_URLCONF = 'bluebottle.urls'
@@ -194,7 +193,6 @@ INSTALLED_APPS = (
     'taggit',
     'taggit_autocomplete_modified',
     'micawber.contrib.mcdjango', # Embedding videos
-    'gitrevision', # Display git revision
     'templatetag_handlebars',
     'rest_framework',
     'polymorphic',
