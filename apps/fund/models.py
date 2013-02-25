@@ -143,3 +143,15 @@ def process_voucher_order_in_progress(voucher):
 def process_donation_order_in_progress(donation):
     donation.status = Donation.DonationStatuses.in_progress
     donation.save()
+
+
+class ProjectPayout(models.Model):
+
+    project = models.ForeignKey('projects.Project', verbose_name=_("project"))
+    amount = models.PositiveIntegerField(_("amount"))
+    currency = models.CharField(_("currency"), blank=True, max_length=3)
+
+    account_number = models.CharField(_("Bank account number"), max_length=200)
+    account_name = models.CharField(_("Bank account name"), max_length=200)
+    account_city = models.CharField(_("Bank account city"), max_length=200)
+

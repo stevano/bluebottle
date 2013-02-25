@@ -37,7 +37,7 @@ class ClieopFactory(object):
         assert 'receiver_account_name' in kwargs
         assert 'receiver_account_city' in kwargs
 
-        return ClieopPaymentLine.objects.create(clieop_batch=self.batch, kwargs)
+        return ClieopPaymentLine.objects.create(clieop_batch=self.batch, **kwargs)
 
 
     def add_direct_debit(self, *args, **kwargs):
@@ -62,18 +62,18 @@ class ClieopFactory(object):
         assert 'sender_account_name' in kwargs
         assert 'sender_account_city' in kwargs
 
-        return ClieopDirectDebitLine.objects.create(clieop_batch=self.batch, kwargs)
+        return ClieopDirectDebitLine.objects.create(clieop_batch=self.batch, **kwargs)
 
     def generate(self):
         if not self.batch:
             raise Exception("No ClieopBatch found. Create one with create_batch.")
 
-        contents = self._file_info()
+        contents = self._write_file_info()
 
 
     # Methods for generating the Clieop file
 
-    def _write_file_info(self):
+    def _generate_file_info(self):
         """
         text  = "0001";										#infocode
         text += "A";											#variantcode
@@ -91,4 +91,6 @@ class ClieopFactory(object):
         text += datetime.strftime('dmY')
         text += "CLIEOP03"
         text += "1"
-        pass
+        return text
+
+
