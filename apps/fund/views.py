@@ -210,7 +210,6 @@ class OrderItemList(CurrentOrderMixin, generics.ListAPIView):
         return order.orderitem_set.all()
 
 
-
 def process_order_in_progress(order):
     """ Helper method for processing orders that have just been paid. """
     for order_item in order.orderitem_set.all():

@@ -346,18 +346,6 @@ App.CurrentOrderRoute = Ember.Route.extend({
     }
 });
 
-App.CurrentOrderItemListRoute = Ember.Route.extend({
-
-    model: function(params) {
-        return App.CurrentDonation.find();
-    },
-
-    setupController: function(controller, orderitems) {
-        controller.set('content', orderitems);
-        this.controllerFor('currentOrder').set('isVoucherOrder', false);
-    }
-});
-
 
 App.CurrentOrderVoucherAddRoute = Ember.Route.extend({
 

@@ -68,12 +68,11 @@
                     Aliquam volutpat tempus quam, molestie malesuada justo sollicitudin nec.
                     <br />
                     {{#linkTo customVoucherRequest}}{% trans "Contact us..." %}{{/linkTo}}
-                {{/if}}
-                <!--
+                {{else}}
                   <h3>Did you know?</h3>
                   <p>Fusce quam enim, vehicula euismod porttitor vitae, facilisis a purus. Maecenas augue metus, consectetur eleifend posuere in, rhoncus ac enim.</p>
                   <p><a href="#">Read some more</a></p>
-                -->
+                {{/if}}
             </div>
 
         </section>
@@ -88,7 +87,7 @@
     <fieldset>
 
         <ul id="donation-projects">
-            {{#each controller}}
+            {{#each controllers.currentOrder.content.items}}
                 {{view "App.CurrentOrderItemView" content=this}}
             {{else}}
                 {{#linkTo projectList}}

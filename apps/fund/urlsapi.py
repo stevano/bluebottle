@@ -15,6 +15,9 @@ urlpatterns = patterns('',
     url(r'^orders/current$', OrderCurrent.as_view(), name='fund-order-current'),
     url(r'^orders/latest/items/$', OrderLatestItemList.as_view(), name='fund-order-latest-item-list'),
     url(r'^orders/current/items/$', OrderItemList.as_view(), name='fund-order-current-item-list'),
+
+    url(r'^orderitems/$', OrderItemList.as_view(), name='fund-order-item-list'),
+
     url(r'^orders/current/donations/$', OrderDonationList.as_view(), name='fund-order-current-donation-list'),
     surl(r'^orders/current/donations/<pk:#>$', OrderDonationDetail.as_view(), name='fund-order-current-donation-detail'),
     url(r'^orders/latest/donations/$', OrderLatestDonationList.as_view(), name='fund-order-latest-donation-list'),

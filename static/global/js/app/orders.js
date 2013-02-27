@@ -46,7 +46,7 @@ App.PaymentOrderProfile = DS.Model.extend({
 });
 
 App.OrderItem = DS.Model.extend({
-    url: 'fund/orders/:order_id/items',
+    url: 'fund/orderitems',
 
     // Model fields
     // FIXME Make the drf2 serializer use the id (or slug) to serialize DS.belongsTo.
@@ -145,6 +145,8 @@ App.CustomVoucherRequest = DS.Model.extend({
  */
 
 App.CurrentOrderItemListController = Em.ArrayController.extend({
+
+    needs: ['currentOrder', 'currentUser'],
 
     updateOrderItem: function(orderItem, newAmount) {
         var transaction = App.store.transaction();
