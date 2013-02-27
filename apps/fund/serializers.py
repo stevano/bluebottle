@@ -47,32 +47,6 @@ class PaymentMethodSerializer(serializers.Serializer):
         return obj
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    amount = EuroField(read_only=True)
-    status = serializers.ChoiceField(read_only=True)
-    # Payment_method  is writen in the view.
-    payment_method_id = serializers.CharField(source='payment.payment_method_id', required=False)
-    payment_submethod_id = serializers.CharField(source='payment.payment_submethod_id', required=False)
-
-    payment_methods = serializers.SerializerMethodField(method_name='get_payment_methods')
-    payment_url = serializers.SerializerMethodField(method_name='get_payment_url')
-
-    def get_payment_methods(self, order):
-        return factory.get_payment_method_ids(amount=order.amount, currency='EUR', country='NL',
-                                              recurring=order.recurring)
-
-    def get_payment_url(self, obj):
-        pm = obj.payment.latest_docdata_payment
-        if pm:
-            return pm.payment_url
-        return None
-
-    class Meta:
-        model = Order
-        fields = ('id', 'amount', 'status', 'recurring', 'payment_method_id', 'payment_methods', 'payment_submethod_id',
-                  'payment_url')
-
-
 class VoucherRedeemSerializer(serializers.ModelSerializer):
     """
     Used for redeeming a Voucher and setting it to 'cashed'.
@@ -142,7 +116,6 @@ class VoucherDonationSerializer(DonationSerializer):
 
 
 class OrderItemSerializer(ObjectBasedSerializer):
-
     def convert_object(self, obj):
         """
         Override so that we can address orderitem item.
@@ -164,6 +137,35 @@ class OrderItemSerializer(ObjectBasedSerializer):
             (Donation, DonationSerializer),
             (Voucher, VoucherSerializer),
         )
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    amount = EuroField(read_only=True)
+    status = serializers.ChoiceField(read_only=True)
+    # Payment_method  is writen in the view.
+    payment_method_id = serializers.CharField(source='payment.payment_method_id', required=False)
+    payment_submethod_id = serializers.CharField(source='payment.payment_submethod_id', required=False)
+
+    payment_methods = serializers.SerializerMethodField(method_name='get_payment_methods')
+    payment_url = serializers.SerializerMethodField(method_name='get_payment_url')
+
+    #items = OrderItemSerializer(source='items', many=True)
+    items = ManyRelatedNestedSerializer(OrderItemSerializer)
+
+    def get_payment_methods(self, order):
+        return factory.get_payment_method_ids(amount=order.amount, currency='EUR', country='NL',
+                                              recurring=order.recurring)
+
+    def get_payment_url(self, obj):
+        pm = obj.payment.latest_docdata_payment
+        if pm:
+            return pm.payment_url
+        return None
+
+    class Meta:
+        model = Order
+        fields = ('id', 'amount', 'status', 'recurring', 'payment_method_id', 'payment_methods', 'payment_submethod_id',
+                  'payment_url', 'items')
 
 
 class CustomVoucherRequestSerializer(serializers.ModelSerializer):

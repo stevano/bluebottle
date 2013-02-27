@@ -152,6 +152,11 @@ App.Adapter.map('App.Voucher', {
     donations: {embedded: 'load'}
 });
 
+App.Adapter.map('App.Order', {
+    items: {embedded: 'load'}
+});
+
+
 
 App.store = DS.Store.create({
     revision: 11,

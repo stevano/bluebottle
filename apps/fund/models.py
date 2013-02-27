@@ -1,7 +1,7 @@
 from decimal import Decimal
 import random
 from apps.fund.mails import mail_new_voucher
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db import models
@@ -64,6 +64,11 @@ class Order(models.Model):
 
     recurring = models.BooleanField(default=False)
     payment = models.ForeignKey('cowry.Payment', null=True, blank=True)
+
+    @property
+    def items(self):
+        return self.orderitem_set.all()
+
 
     # Calculate total for this Order
     @property
