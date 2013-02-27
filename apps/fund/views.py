@@ -388,6 +388,28 @@ class OrderItemMixin(object):
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class DonationList(generics.ListCreateAPIView):
+    # FIXME: restrict to current user and only donations with status 'started'
+    model = Donation
+    serializer_class = DonationSerializer
+    paginate_by = 50
+
+
+class DonationDetail(generics.RetrieveUpdateDestroyAPIView):
+    # FIXME: restrict to current user and only donations with status 'started'
+    model = Donation
+    serializer_class = DonationSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        ct = ContentType.objects.get_for_model(obj)
+        order_item = OrderItem.objects.filter(object_id=obj.id, content_type=ct)
+        if order_item:
+            order_item.delete()
+        obj.delete()
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class OrderDonationList(OrderItemMixin, CurrentOrderMixin, generics.ListCreateAPIView):
     model = Donation
     serializer_class = DonationSerializer

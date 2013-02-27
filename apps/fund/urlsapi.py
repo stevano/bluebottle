@@ -1,8 +1,9 @@
 from apps.fund.views import CustomVoucherRequestList
 from django.conf.urls import patterns, url
 from surlex.dj import surl
-from .views import (FundApi, OrderList, OrderDetail, OrderCurrent, OrderItemList, OrderDonationList,
-                    OrderDonationDetail, OrderLatestDonationList, PaymentOrderProfileCurrent, OrderLatestItemList,
+from .views import (FundApi, OrderList, OrderDetail, OrderCurrent, OrderItemList,
+                    OrderDonationList, OrderDonationDetail, DonationList, DonationDetail,
+                    OrderLatestDonationList, PaymentOrderProfileCurrent, OrderLatestItemList,
                     PaymentMethodList, VoucherDetail, PaymentMethodInfoCurrent,
                     OrderVoucherList, OrderVoucherDetail, VoucherDonationList, VoucherDonationDetail)
 
@@ -16,7 +17,8 @@ urlpatterns = patterns('',
     url(r'^orders/latest/items/$', OrderLatestItemList.as_view(), name='fund-order-latest-item-list'),
     url(r'^orders/current/items/$', OrderItemList.as_view(), name='fund-order-current-item-list'),
 
-    url(r'^orderitems/$', OrderItemList.as_view(), name='fund-order-item-list'),
+    url(r'^donations/$', DonationList.as_view(), name='fund-donation-list'),
+    surl(r'^donations/<pk:#>$', DonationDetail.as_view(), name='fund-donation-detail'),
 
     url(r'^orders/current/donations/$', OrderDonationList.as_view(), name='fund-order-current-donation-list'),
     surl(r'^orders/current/donations/<pk:#>$', OrderDonationDetail.as_view(), name='fund-order-current-donation-detail'),

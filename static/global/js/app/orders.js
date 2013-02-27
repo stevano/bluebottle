@@ -30,7 +30,7 @@ App.Order = DS.Model.extend({
     payment_method_id: DS.attr('string'),
     payment_submethod_id: DS.attr('string'),
     payment_methods: DS.hasMany('App.PaymentMethod'),
-    items: DS.hasMany('App.OrderItem')
+    items: DS.hasMany('App.Donation')
 });
 
 
@@ -59,23 +59,16 @@ App.OrderItem = DS.Model.extend({
 });
 
 
-App.CurrentOrderItem = DS.Model.extend({
-    url: 'fund/orders/current/items',
+App.Donation = DS.Model.extend({
+    url: 'fund/donations',
+
+    project: DS.belongsTo('App.Project'),
+    project_slug: DS.attr('string'),
+    amount: DS.attr('number'),
+    status: DS.attr('string'),
+    type: DS.attr('string')
+
 });
-
-
-App.LatestDonation = App.OrderItem.extend({
-    url: 'fund/orders/latest/donations'
-});
-
-App.CurrentDonation = App.OrderItem.extend({
-    url: 'fund/orders/current/donations'
-});
-
-App.VoucherDonation = App.CurrentDonation.extend({
-   url: 'fund/vouchers/:code/donations'
-});
-
 
 App.Voucher =  App.OrderItem.extend({
     url: 'fund/vouchers',

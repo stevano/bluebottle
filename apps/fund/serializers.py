@@ -11,7 +11,7 @@ class DonationSerializer(serializers.ModelSerializer):
     project_id = serializers.SlugRelatedField(source='project', slug_field='slug', read_only=True)
     project_slug = serializers.SlugRelatedField(source='project', slug_field='slug')
     status = serializers.ChoiceField(read_only=True)
-    url = serializers.HyperlinkedIdentityField(view_name='fund-order-current-donation-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='fund-donation-detail')
     amount = EuroField()
 
     def validate_amount(self, attrs, source):
