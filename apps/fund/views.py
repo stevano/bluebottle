@@ -206,7 +206,9 @@ class OrderItemList(CurrentOrderMixin, generics.ListAPIView):
 
     def get_queryset(self):
         # Filter queryset for the current order
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
         return order.orderitem_set.all()
 
 
@@ -273,7 +275,10 @@ class PaymentOrderProfileCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIVi
     serializer_class = DocDataOrderProfileSerializer
 
     def get_object(self):
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
+
         payment = order.payment
 
         # Pre-fill the order profile form if the user is authenticated.
@@ -308,7 +313,9 @@ class PaymentMethodList(CurrentOrderMixin, generics.GenericAPIView):
         """
         Get the Payment methods form Cowry.
         """
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
         pm_ids = request.QUERY_PARAMS.getlist('ids[]', [])
         payment_methods = factory.get_payment_methods(amount=order.amount, currency='EUR', country='NL',
                                                       recurring=order.recurring, pm_ids=pm_ids)
@@ -331,7 +338,9 @@ class PaymentMethodInfoCurrent(CurrentOrderMixin, generics.RetrieveUpdateAPIView
     serializer_class = DocDataPaymentMethodSerializer
 
     def get_object(self):
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
         if not order.payment.latest_docdata_payment:
             if not order.payment.payment_method_id:
                 payment_methods = factory.get_payment_method_ids(amount=order.amount, currency='EUR', country='NL',
@@ -357,13 +366,17 @@ class OrderItemMixin(object):
 
     def get_queryset(self):
         # Filter queryset for the current order
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
         orderitems = order.orderitem_set.filter(content_type=ContentType.objects.get_for_model(self.model))
         queryset = self.model.objects.filter(id__in=orderitems.values('object_id'))
         return queryset
 
     def create(self, request, *args, **kwargs):
-        order = self.get_or_create_current_order()
+        order = self.get_current_order()
+        if not order:
+            raise exceptions.ParseError(detail=_(u"No active Order."))
         serializer = self.get_serializer(data=request.DATA)
         if serializer.is_valid():
             self.pre_save(serializer.object)
