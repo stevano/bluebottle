@@ -5,14 +5,24 @@
 App.Order = DS.Model.extend({
     url: 'fund/orders',
 
-    amount: DS.attr('number'),
     status: DS.attr('string'),
     recurring: DS.attr('string'),
     payment_method_id: DS.attr('string'),
     payment_submethod_id: DS.attr('string'),
     payment_methods: DS.hasMany('App.PaymentMethod'),
     vouchers: DS.hasMany('App.Voucher'),
-    donations: DS.hasMany('App.Donation')
+    donations: DS.hasMany('App.Donation'),
+
+    amount: function(){
+        amount = this.get('donations').getEach('amount').reduce(function(accum, item){
+            return parseInt(accum + item);
+        }, 0);
+        amount += this.get('vouchers').getEach('amount').reduce(function(accum, item){
+            return parseInt(accum + item);
+        }, 0);
+        return amount;
+    }.property('donations.@each.amount', 'vouchers.@each.amount', 'donations', 'vouchers')
+
 });
 
 
@@ -47,7 +57,7 @@ App.Voucher =  DS.Model.extend({
 
 /* Models with CurrentOrder relations and urls. */
 
-App.CurrentOrder = DS.Model.extend({
+App.CurrentOrder = App.Order.extend({
     url: 'fund/orders',
 
     vouchers: DS.hasMany('App.CurrentVoucher'),
@@ -254,11 +264,11 @@ App.PaymentOrderProfileController = Em.ObjectController.extend({
         // We should at least have an email address
         if (!profile.get('isDirty') && profile.get('email')) {
             // No changes. No need to commit.
-            controller.transitionTo('currentPaymentMethodInfo');
+            controller.transitionToRoute('currentPaymentMethodInfo');
         }
         this.get('transaction').commit();
         profile.on('didUpdate', function(record) {
-            controller.transitionTo('currentPaymentMethodInfo');
+            controller.transitionToRoute('currentPaymentMethodInfo');
         });
         // TODO: Validate data and return errors here
         profile.on('becameInvalid', function(record) {
@@ -311,7 +321,8 @@ App.CurrentOrderController = Em.ObjectController.extend({
 
 
 App.CurrentOrderPaymentController = Em.ObjectController.extend({
-    contentBinding: App.CurrentOrderController.content
+    needs: ['currentOrder']
+
 });
 
 
@@ -346,7 +357,7 @@ App.VoucherRedeemController = Em.ArrayController.extend({
         transaction.add(voucher);
         voucher.set('status', 'cashed');
         voucher.on('didUpdate',function(){
-            controller.transitionTo('voucherRedeemDone');
+            controller.transitionToRoute('voucherRedeemDone');
         });
         transaction.commit();
     },
@@ -437,6 +448,7 @@ App.CurrentOrderDonationView = Em.View.extend({
         var controller = this.get('controller');
         this.$().slideUp(500, function() {
             controller.deleteRecordOnServer();
+            
         });
     }
 });
