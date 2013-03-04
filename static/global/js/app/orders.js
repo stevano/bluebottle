@@ -304,38 +304,10 @@ App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
 
 
     updateOrder: function(){
-        this.updateRecordOnServer();
-    }
-
-//    initTransaction: function() {
-//        var order = this.get('content');
-//        var transaction = App.get('store').transaction();
-//        this.set('transaction', transaction);
-//        transaction.add(order);
-//    }.observes('content'),
-
-//    updateOrder: function() {
-//        if (this.get('content.isDirty')) {
-//            var controller = this;
-//            var order = this.get('content');
-//            this.get('transaction').commit();
-//            order.on('didUpdate', function(record){
-//                // Init a new private transaction.
-//                controller.initTransaction();
-//            });
-//        }
-//    }.observes('content.isDirty'),
-
-//    updateOrder: function() {
-//        var order = this.get('model');
-//        var transaction = App.get('store').transaction();
-//        transaction.add(order);
-//        transaction.commit();
-//        order.on('didUpdate', function(record){
-//            console.log("blah")
-//            transaction.removeCleanRecords()
-//        });
-//    }.observes('recurring'),
+        if (this.get('model.isDirty')) {
+            this.updateRecordOnServer();
+        }
+    }.observes('model.isDirty')
 
 });
 
