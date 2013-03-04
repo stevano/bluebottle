@@ -107,7 +107,6 @@
 
     <fieldset class="donation-frequency">
         <label class="label">{% trans "Support the selected projects:" %}</label>
-        {{controllers.currentOrder.recurring}}
         {{#view Em.RadioButtonGroup name="frequency" selectedValueBinding="controllers.currentOrder.recurring"}}
             <label>
                 {{view view.RadioButton value="false"}}
@@ -120,7 +119,6 @@
             </label>
         {{/view}}
 
-        {# FIXME change amount @each like in peepCode example. #}
         <span class="currency"><em>&euro; </em>{{ controllers.currentOrder.amount }}</span>
 
     </fieldset>
@@ -300,7 +298,7 @@
     <p class="donation-amount">
         <strong class="amount-needed">&euro; {{neededAfterDonation}} {% trans "is still needed"%}</strong>
         <label for="donation-amount-1">{% trans "I'd like to give" %}</label>
-        <span class="currency"><em>&euro; </em><input type="number" id="donation-amount-1" name="donation-amount-1" size="8" maxlength="4" {{bindAttr value="amount"}} /></span>
+        <span class="currency"><em>&euro; </em><input type="number" id="donation-amount-1" step="5" name="donation-amount-1" size="8" maxlength="4" {{bindAttr value="amount"}} /></span>
     </p>
 
     <a class="remove" {{action "delete" this target="view" }}>{% trans "Remove" %}</a>

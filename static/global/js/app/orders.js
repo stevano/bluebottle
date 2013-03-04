@@ -11,17 +11,7 @@ App.Order = DS.Model.extend({
     payment_submethod_id: DS.attr('string'),
     payment_methods: DS.hasMany('App.PaymentMethod'),
     vouchers: DS.hasMany('App.Voucher'),
-    donations: DS.hasMany('App.Donation'),
-
-    amount: function(){
-        amount = this.get('donations').getEach('amount').reduce(function(accum, item){
-            return parseInt(accum + item);
-        }, 0);
-        amount += this.get('vouchers').getEach('amount').reduce(function(accum, item){
-            return parseInt(accum + item);
-        }, 0);
-        return amount;
-    }.property('donations.@each.amount', 'vouchers.@each.amount', 'donations', 'vouchers')
+    donations: DS.hasMany('App.Donation')
 
 });
 
@@ -184,13 +174,28 @@ App.CurrentOrderDonationListController = Em.ArrayController.extend({
 });
 
 
-App.CurrentOrderDonationController = Em.ObjectController.extend(App.DeleteModelMixin, {
+App.CurrentOrderDonationController = Em.ObjectController.extend(App.UpdateDeleteMixin, {
+    needs: ['currentOrder'],
+
+    startTransaction: function(sender, key){
+        var transaction = this.get('controllers.currentOrder.transaction');
+        if (!this.get('model.isLoaded')) {
+            transaction.add(this.get('model'));
+        }
+    }.observes('model.isLoaded'),
+
+
     updateDonation: function(newAmount) {
-        var donation = this.get('model');
-        var transaction = App.store.transaction();
-        transaction.add(donation);
-        donation.set('amount', newAmount);
-        transaction.commit();
+        this.get('model').set('amount', parseInt(newAmount));
+        this.updateRecordOnServer();
+    },
+
+    deleteRecord: function(){
+        var model = this.get('model');
+        // TODO: note
+        var order = App.CurrentOrder.find('current');
+        order.get('donations').removeObject(model);
+        return this.deleteRecordOnServer();
     },
 
     neededAfterDonation: function() {
@@ -278,7 +283,7 @@ App.PaymentOrderProfileController = Em.ObjectController.extend({
 });
 
 
-App.CurrentOrderController = Em.ObjectController.extend({
+App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
     isIdeal: function() {
         return (this.get('content.payment_method_id') == 'dd-ideal');
     }.property('content.payment_method_id'),
@@ -286,6 +291,21 @@ App.CurrentOrderController = Em.ObjectController.extend({
     isDirectDebit: function() {
         return (this.get('content.payment_method_id') == 'dd-direct-debit');
     }.property('content.payment_method_id'),
+
+    amount: function(){
+        var amount = this.get('donations').getEach('amount').reduce(function(accum, item){
+            return parseInt(accum + item);
+        }, 0);
+        amount += this.get('vouchers').getEach('amount').reduce(function(accum, item){
+            return parseInt(accum + item);
+        }, 0);
+        return parseInt(amount);
+    }.property('donations.@each.amount', 'vouchers.@each.amount'),
+
+
+    updateOrder: function(){
+        this.updateRecordOnServer();
+    }
 
 //    initTransaction: function() {
 //        var order = this.get('content');
@@ -447,8 +467,7 @@ App.CurrentOrderDonationView = Em.View.extend({
     delete: function(item) {
         var controller = this.get('controller');
         this.$().slideUp(500, function() {
-            controller.deleteRecordOnServer();
-            
+            controller.deleteRecord();
         });
     }
 });
