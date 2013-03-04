@@ -79,7 +79,7 @@ App.ProjectController = Em.ObjectController.extend({
 
     supportProject: function() {
         var project = this.get('model'),
-            transaction = App.store.transaction(),
+            transaction = this.get('controllers.currentOrder.transaction'),
             donation = transaction.createRecord(App.CurrentDonation);
 
         // FIXME Our adapter needs to be adjusted to not have to set project_slug.
