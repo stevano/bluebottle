@@ -174,7 +174,7 @@ App.CurrentOrderDonationListController = Em.ArrayController.extend({
 });
 
 
-App.CurrentOrderDonationController = Em.ObjectController.extend(App.UpdateDeleteMixin, {
+App.CurrentOrderDonationController = Em.ObjectController.extend(App.EditDeleteMixin, {
     needs: ['currentOrder'],
 
     getTransaction: function(sender, key){
@@ -285,7 +285,7 @@ App.PaymentOrderProfileController = Em.ObjectController.extend({
 });
 
 
-App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
+App.CurrentOrderController = Em.ObjectController.extend(App.EditModelMixin, {
 
     isIdeal: function() {
         return (this.get('content.payment_method_id') == 'dd-ideal');

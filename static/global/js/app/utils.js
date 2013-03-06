@@ -25,8 +25,11 @@ App.IsAuthorMixin = Em.Mixin.create({
 
 
 App.TransactionMixin = Em.Mixin.create({
+    transaction: null,
     getTransaction: function(sender, key){
-        if (this.get('transaction') == 'defaultTransaction') {
+        var transaction = this.get('transaction');
+
+        if (transaction == null || transaction == 'defaultTransaction') {
             this.set('transaction', App.store.transaction());
         }
         if (this.get('model.isLoaded')) {
@@ -37,23 +40,26 @@ App.TransactionMixin = Em.Mixin.create({
 });
 
 
+App.NewModelMixin = Em.Mixin.create(App.TransactionMixin, {
+});
+
 App.DeleteModelMixin = Em.Mixin.create(App.TransactionMixin, {
     deleteRecordOnServer: function(sender, key) {
         var model = this.get('model');
         model.deleteRecord();
-        this.get('transaction').commit();
+        this.getTransaction().commit();
     }
 });
 
 
-App.UpdateModelMixin = Em.Mixin.create(App.TransactionMixin, {
+App.EditModelMixin = Em.Mixin.create(App.TransactionMixin, {
     updateRecordOnServer: function(sender, key) {
         var model = this.get('model');
-        this.get('transaction').commit();
+        this.getTransaction().commit();
     }
 });
 
-App.UpdateDeleteMixin = Em.Mixin.create(App.UpdateModelMixin, App.DeleteModelMixin);
+App.EditDeleteMixin = Em.Mixin.create(App.EditModelMixin, App.DeleteModelMixin);
 
 
 /**
