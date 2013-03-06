@@ -19,11 +19,7 @@ App.Order = DS.Model.extend({
 App.Donation = DS.Model.extend({
     url: 'fund/donations',
 
-    // Model fields
-    // FIXME Make the drf2 serializer use the id (or slug) to serialize DS.belongsTo.
-    //       This will enable us to remove the project_slug field.
     project: DS.belongsTo('App.Project'),
-    project_slug: DS.attr('string'),
     amount: DS.attr('number', {defaultValue: 20}),
     status: DS.attr('string'),
     type: DS.attr('string'),
@@ -179,8 +175,8 @@ App.CurrentOrderDonationController = Em.ObjectController.extend(App.EditDeleteMi
 
     getTransaction: function(sender, key){
         var transaction =  this.get('controllers.currentOrder').getTransaction();
-        if (!this.get('model.isLoaded')) {
-            transaction.add(this.get('model'));
+        if (this.get('model.isLoaded')) {
+            //transaction.add(this.get('model'));
         }
         return transaction;
     }.observes('model.isLoaded'),

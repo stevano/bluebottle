@@ -29,7 +29,7 @@ App.WallPostReactionListController = Em.ArrayController.extend({
 });
 
 
-App.WallPostReactionNewController = Em.ObjectController.extend(App.TransactionMixin, {
+App.WallPostReactionNewController = Em.ObjectController.extend({
     needs: ['currentUser'],
 
     init: function() {
@@ -38,8 +38,7 @@ App.WallPostReactionNewController = Em.ObjectController.extend(App.TransactionMi
     },
 
     createNewReaction: function() {
-        var transaction = this.getTransaction();
-        var reaction =  transaction.createRecord(App.WallPostReaction);
+        var reaction =  App.store.transaction().createRecord(App.WallPostReaction);
         this.set('model', reaction);
     },
 
