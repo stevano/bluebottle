@@ -191,9 +191,10 @@ App.CurrentOrderDonationController = Em.ObjectController.extend(App.UpdateDelete
         this.updateRecordOnServer();
     },
 
-    deleteRecord: function(){
+    deleteDonation: function(){
         var model = this.get('model');
-        // TODO: note
+        // Donations are not linked to order by belongsTo (through pk 'current').
+        // Manually remove donation objects from order before deleting them.
         var order = App.CurrentOrder.find('current');
         order.get('donations').removeObject(model);
         return this.deleteRecordOnServer();
@@ -285,6 +286,7 @@ App.PaymentOrderProfileController = Em.ObjectController.extend({
 
 
 App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
+
     isIdeal: function() {
         return (this.get('content.payment_method_id') == 'dd-ideal');
     }.property('content.payment_method_id'),
@@ -293,7 +295,7 @@ App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
         return (this.get('content.payment_method_id') == 'dd-direct-debit');
     }.property('content.payment_method_id'),
 
-    amount: function(){
+    total: function(){
         var amount = this.get('donations').getEach('amount').reduce(function(accum, item){
             return parseInt(accum + item);
         }, 0);
@@ -305,6 +307,7 @@ App.CurrentOrderController = Em.ObjectController.extend(App.UpdateModelMixin, {
 
 
     updateOrder: function(){
+        // This only gets triggered by toggling 'recurring'.
         if (this.get('model.isDirty')) {
             this.updateRecordOnServer();
         }
@@ -440,7 +443,7 @@ App.CurrentOrderDonationView = Em.View.extend({
     delete: function(item) {
         var controller = this.get('controller');
         this.$().slideUp(500, function() {
-            controller.deleteRecord();
+            controller.deleteDonation();
         });
     }
 });

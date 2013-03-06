@@ -78,16 +78,15 @@ App.ProjectController = Em.ObjectController.extend({
     needs: ['currentOrder'],
 
     supportProject: function() {
-        var project = this.get('model'),
-            transaction = this.get('controllers.currentOrder').getTransaction(),
-            donation = transaction.createRecord(App.CurrentDonation);
+        var project = this.get('model');
+        var transaction = this.get('controllers.currentOrder').getTransaction();
+        var donation = transaction.createRecord(App.CurrentDonation);
 
         // FIXME Our adapter needs to be adjusted to not have to set project_slug.
         donation.set('project_slug', project.get('slug'));
         donation.set('project', project);
         var order = this.get('controllers.currentOrder').get('model');
         donation.set('order', order);
-        controller = this;
         transaction.commit();
         this.transitionToRoute('currentOrderDonationList');
     }
