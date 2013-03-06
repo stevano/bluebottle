@@ -313,7 +313,13 @@ App.CurrentOrderController = Em.ObjectController.extend(App.EditModelMixin, {
 
 
 App.CurrentOrderPaymentController = Em.ObjectController.extend({
-    needs: ['currentOrder']
+    needs: ['currentOrder'],
+
+    init: function (){
+        console.log('oh yeahhhhh');
+        console.log(this.get('controllers.currentOrder.payment_methods'));
+        console.log(this.get('controllers.currentOrder.total'));
+    }
 
 });
 

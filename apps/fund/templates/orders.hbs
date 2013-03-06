@@ -304,7 +304,7 @@
     <a class="remove" {{action "delete" this target="view" }}>{% trans "Remove" %}</a>
 
 {% endtplhandlebars %}
-
+d
 
 {% tplhandlebars "order_payment" %}
 
@@ -314,11 +314,11 @@
     </div>
     <fieldset>
         <div class="tabs vertical">
-            {{#view Em.RadioButtonGroup name="payment_method" selectedValueBinding="controllers.currentOrder.model.payment_method_id"}}
-                {{#each controllers.currentOrder.model.payment_methods}}
+            {{#view Em.RadioButtonGroup name="payment_method" selectedValueBinding="controllers.currentOrder.payment_method_id"}}
+                {{#each payment_method in controllers.currentOrder.payment_methods}}
                     <label class="tab">
-                        {{view view.RadioButton value=this.id}}
-                        {{this.name}}
+                        {{view view.RadioButton valueBinding=payment_method.id}}
+                        {{payment_method.id}}
                     </label>
                 {{else}}
                     {% trans "No payment methods available" %}

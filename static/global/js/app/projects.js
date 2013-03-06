@@ -80,9 +80,10 @@ App.ProjectController = Em.ObjectController.extend({
     supportProject: function() {
         var project = this.get('model');
         var transaction = this.get('controllers.currentOrder').getTransaction();
+        var order = this.get('controllers.currentOrder').get('model');
+
         var donation = transaction.createRecord(App.CurrentDonation);
         donation.set('project', project);
-        var order = this.get('controllers.currentOrder').get('model');
         donation.set('order', order);
         transaction.commit();
         this.transitionToRoute('currentOrderDonationList');

@@ -147,10 +147,12 @@ App.Adapter.map('App.WallPostReaction', {
     author: {embedded: 'load'}
 });
 App.Adapter.map('App.Order', {
+    payment_methods: {embedded: 'load'},
     donations: {embedded: 'load'},
     vouchers: {embedded: 'load'}
 });
 App.Adapter.map('App.CurrentOrder', {
+    payment_methods: {embedded: 'load'},
     donations: {embedded: 'load'},
     vouchers: {embedded: 'load'}
 });

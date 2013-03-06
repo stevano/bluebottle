@@ -29,9 +29,10 @@ App.TransactionMixin = Em.Mixin.create({
     getTransaction: function(sender, key){
         if (this.get('transaction') == 'defaultTransaction') {
             this.set('transaction', App.store.transaction());
-        }
-        if (sender == 'model.isLoaded' && this.get('model.isLoaded')) {
-            this.get('transaction').add(this.get('model'));
+            if (key == 'model.isLoaded' && this.get('model.isLoaded')) {
+                console.log('model loaded and added to transaction');
+                this.get('transaction').add(this.get('model'));
+            }
         }
         return this.get('transaction');
     }.observes('model.isLoaded')
