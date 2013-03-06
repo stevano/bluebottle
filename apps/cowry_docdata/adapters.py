@@ -1,5 +1,6 @@
 # coding=utf-8
 import logging
+from urllib2 import URLError
 
 from apps.cowry.adapters import AbstractPaymentAdapter
 from django.conf import settings
@@ -106,6 +107,7 @@ class DocdataPaymentAdapter(AbstractPaymentAdapter):
             url = self.test_api_url
         else:
             url = self.live_api_url
+        # TODO: Properly handle the exception of Docdata being down or unreachable.
         self.client = Client(url, plugins=[DocDataAPIVersionPlugin()])
 
         # Setup the merchant soap object for use in all requests.

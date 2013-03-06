@@ -25,12 +25,14 @@ App.IsAuthorMixin = Em.Mixin.create({
 
 
 App.TransactionMixin = Em.Mixin.create({
-    startTransaction: function(sender, key){
-        var transaction = App.store.transaction();
-        if (!this.get('model.isLoaded')) {
-            transaction.add(this.get('model'));
+    getTransaction: function(sender, key){
+        if (this.get('transaction') == 'defaultTransaction') {
+            this.set('transaction', App.store.transaction());
         }
-        return transaction;
+        if (this.get('model.isLoaded')) {
+            this.get('transaction').add(this.get('model'));
+        }
+        return this.get('transaction');
     }.observes('model.isLoaded')
 });
 
@@ -59,3 +61,20 @@ App.UpdateModelMixin = Em.Mixin.create(App.TransactionMixin, {
 });
 
 App.UpdateDeleteMixin = Em.Mixin.create(App.UpdateModelMixin, App.DeleteModelMixin);
+
+
+/**
+ * Change how Transaction is working. We will never use the defaultTransaction.
+ * After a commit put all records that are in a transaction into a newly created transaction.
+ *
+ */
+DS.Transaction.reopen({
+    remove: function(record) {
+        // Check if there's already a new transaction to move the records to or create one.
+        if (typeof newTransaction === 'undefined') {
+            newTransaction = this.get('store').transaction();
+        }
+        newTransaction.adoptRecord(record);
+    }
+});
+

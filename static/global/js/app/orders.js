@@ -177,11 +177,12 @@ App.CurrentOrderDonationListController = Em.ArrayController.extend({
 App.CurrentOrderDonationController = Em.ObjectController.extend(App.UpdateDeleteMixin, {
     needs: ['currentOrder'],
 
-    startTransaction: function(sender, key){
-        var transaction = this.get('controllers.currentOrder.transaction');
+    getTransaction: function(sender, key){
+        var transaction =  this.get('controllers.currentOrder').getTransaction();
         if (!this.get('model.isLoaded')) {
             transaction.add(this.get('model'));
         }
+        return transaction;
     }.observes('model.isLoaded'),
 
 
