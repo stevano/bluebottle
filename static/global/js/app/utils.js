@@ -39,13 +39,9 @@ App.TransactionMixin = Em.Mixin.create({
 
 App.DeleteModelMixin = Em.Mixin.create(App.TransactionMixin, {
     deleteRecordOnServer: function(sender, key) {
-        // If it has a belongsTo we should remove it from its parent's hasMany.
         var model = this.get('model');
         model.deleteRecord();
         this.get('transaction').commit();
-        model.on('IsDeleted', function(){
-            this.startTransaction();
-        });
     }
 });
 
@@ -54,9 +50,6 @@ App.UpdateModelMixin = Em.Mixin.create(App.TransactionMixin, {
     updateRecordOnServer: function(sender, key) {
         var model = this.get('model');
         this.get('transaction').commit();
-        model.on('IsUpdated', function(){
-            this.startTransaction();
-        });
     }
 });
 

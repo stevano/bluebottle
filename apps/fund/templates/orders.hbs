@@ -314,7 +314,6 @@
     </div>
     <fieldset>
         <div class="tabs vertical">
-            {{controllers.currentOrder.model}}
             {{#view Em.RadioButtonGroup name="payment_method" selectedValueBinding="controllers.currentOrder.model.payment_method_id"}}
                 {{#each controllers.currentOrder.model.payment_methods}}
                     <label class="tab">
