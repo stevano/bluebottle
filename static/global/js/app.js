@@ -432,7 +432,7 @@ App.CurrentPaymentMethodInfoRoute = Ember.Route.extend({
 
 App.FinalOrderItemListRoute = Ember.Route.extend({
     model: function(params) {
-        return App.LatestDonation.find();
+        return App.CurrentDonation.find();
     },
 
     setupController: function(controller, orderitems) {
