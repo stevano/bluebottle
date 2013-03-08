@@ -41,7 +41,6 @@ App.WallPostReactionNewController = Em.ObjectController.extend({
         var transaction = this.get('store').transaction();
         var reaction =  transaction.createRecord(App.WallPostReaction);
         this.set('model', reaction);
-        this.set('transaction', transaction);
     },
 
     addReaction: function() {

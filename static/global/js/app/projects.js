@@ -79,7 +79,7 @@ App.ProjectController = Em.ObjectController.extend({
 
     supportProject: function() {
         var project = this.get('model');
-        var transaction = this.get('store').transaction();
+        var transaction = this.get('controllers.currentOrder').getTransaction();
         var donation = transaction.createRecord(App.CurrentOrderDonation);
 
         donation.set('project', project);
