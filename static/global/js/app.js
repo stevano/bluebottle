@@ -58,6 +58,20 @@ Em.TextField.reopen({
 // TODO Rename App to BlueBottle, BB or BBApp.
 App = Em.Application.create({
     VERSION: '1.0.0',
+    language: window.location.pathname.split( '/' )[1],
+
+    switchLanguage: function(language) {
+        var availableLanguages = new Array('en', 'nl');
+        for (i in availableLanguages) {
+            if (availableLanguages[i] == language) {
+                document.location = '/' + language + document.location.hash;
+                return true;
+            }
+        }
+        alert('Language not available: ' + language);
+        return false;
+
+    },
 
     ready: function() {
         //..init code goes here...
@@ -65,7 +79,7 @@ App = Em.Application.create({
 
     _getTemplate: function(template, callback) {
         var hash = {};
-        hash.url = '/en/templates/' + template + '.hbs';
+        hash.url = '/' + this.language + '/templates/' + template + '.hbs';
         hash.type = 'GET';
         hash.contentType = 'application/json';
         hash.success = callback;
