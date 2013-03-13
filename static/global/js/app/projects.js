@@ -23,6 +23,7 @@ App.Project = DS.Model.extend({
     description: DS.attr('string'),
     money_asked: DS.attr('number'),
     money_donated: DS.attr('number'),
+    created: DS.attr('date'),
     tags: DS.attr('array'),
     owner: DS.belongsTo('App.Member'),
     country: DS.belongsTo('App.Country'),
