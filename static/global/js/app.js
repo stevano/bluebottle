@@ -60,19 +60,6 @@ App = Em.Application.create({
     VERSION: '1.0.0',
     language: window.location.pathname.split( '/' )[1],
 
-    switchLanguage: function(language) {
-        var availableLanguages = new Array('en', 'nl');
-        for (i in availableLanguages) {
-            if (availableLanguages[i] == language) {
-                document.location = '/' + language + document.location.hash;
-                return true;
-            }
-        }
-        alert('Language not available: ' + language);
-        return false;
-
-    },
-
     ready: function() {
         //..init code goes here...
     },
@@ -267,6 +254,7 @@ App.Router.map(function() {
         this.route('add', {path: '/add/:slug'});
         this.route('code', {path: '/:code'});
     });
+
 });
 
 
@@ -276,6 +264,24 @@ App.ProjectListRoute = Ember.Route.extend({
     }
 });
 
+
+App.ApplicationRoute = Ember.Route.extend({
+
+    events: {
+        switchLanguage: function(language) {
+            var availableLanguages = new Array('en', 'nl');
+            for (i in availableLanguages) {
+                if (availableLanguages[i] == language) {
+                    document.location = '/' + language + document.location.hash;
+                    return true;
+                }
+            }
+            document.location = '/en' + document.location.hash;
+            return true;
+
+        }
+    }
+})
 
 App.ProjectRoute = Ember.Route.extend({
     setupController: function(controller, project) {
@@ -420,3 +426,18 @@ App.FinalOrderItemListRoute = Ember.Route.extend({
 });
 
 
+/* Views */
+App.LanguageView = Ember.View.extend({
+    templateName: 'language'
+});
+
+
+App.LanguageSwitchView = Ember.CollectionView.extend({
+    tagName: 'ul',
+    classNames: ['nav-language'],
+    content: [
+        Em.Object.create({title:'English', slug: 'en'}),
+        Em.Object.create({title:'Nederlands', slug: 'nl'})
+    ],
+    itemViewClass: App.LanguageView
+});

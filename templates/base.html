@@ -58,7 +58,12 @@
             en <em>zie direct</em> waar het terecht komt!
         </h1>
     {% endtplhandlebars %}
-    
+
+    {% tplhandlebars "language" %}
+        <a {{action "switchLanguage" view.content.slug }}{{bindAttr title=view.content.title}}>{{ view.content.slug }}</a>
+    {% endtplhandlebars %}
+
+
     {% tplhandlebars "application" %}
         <!-- main header -->
         <div class="container" id="navigation">
@@ -92,10 +97,7 @@
                                 <strong>{% trans "MY 1%" %} &#9660;</strong>
                             </a>
                             <ul class="my-menu">
-                                <li class="nav-language">
-                                    <a id="nav-lang-en" class="is-active" href="#">EN</a>
-                                    <a id="nav-lang-nl" href="#">NL</a>
-                                </li>
+                                {{view "App.LanguageSwitchView"}}
                                 <li class="green">
                                     <a href="/en/accounts/logout/?next=/en/">
                                         <strong>Logout</strong>
@@ -107,8 +109,8 @@
                             <a href="/accounts/login" class="nav-login">Login</a>
                             <a href="/accounts/signup" class="nav-signup">Signup</a>
                             <div class="nav-language">
-                                <a id="nav-lang-en" class="is-active" href="#">EN</a>
-                                <a id="nav-lang-nl" href="#">NL</a>
+                                <a id="nav-lang-en" class="is-active" onclick="switchLanguage('en'); return false;" href="#">EN</a>
+                                <a id="nav-lang-nl" onclick="switchLanguage('nl'); return false;" href="#">NL</a>
                             </div>
                         {{/if}}
                     </nav>
