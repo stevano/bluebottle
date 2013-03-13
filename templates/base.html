@@ -148,6 +148,12 @@
 
 </head>
 <body id="body">
+    {% get_current_language as LANGUAGE_CODE %}
+    {% get_available_languages as LANGUAGES %}
+    {{  LANGUAGES }}
+    {{ LANGUAGE_CODE }}
+
+
     <div id="content"></div>
     <!-- Scripts -->
     <div id="fb-root"></div>

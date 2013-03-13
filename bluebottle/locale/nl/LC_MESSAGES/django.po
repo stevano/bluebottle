@@ -56,11 +56,11 @@ msgstr "1%%Projecten"
 
 #: base.html:79
 msgid "Cart"
-msgstr ""
+msgstr "Mandje"
 
 #: base.html:80
 msgid "Vouchers"
-msgstr ""
+msgstr "Bonnen"
 
 #: footer.html:6
 msgid "Menu"
@@ -96,7 +96,7 @@ msgstr "Partners"
 
 #: footer.html:14
 msgid "Business"
-msgstr "Zaken"
+msgstr "Bedrijven"
 
 #: footer.html:15 footer.html.py:35
 msgid "Learn more"
