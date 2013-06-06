@@ -470,6 +470,7 @@ class SalesforceContact(SalesforceModel):
     email = models.CharField(max_length=80, db_column='Email')
     member_1_club = models.BooleanField(db_column='Member_1_club__c', default=True)
     user_name = models.CharField(max_length=255, db_column='Username__c')
+    is_active = models.BooleanField(db_column='Active__c')
 
     # SF Layout: Profile section.
     first_name = models.CharField(max_length=40, db_column='FirstName')
