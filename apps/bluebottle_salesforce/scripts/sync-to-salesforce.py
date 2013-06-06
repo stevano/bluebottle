@@ -22,10 +22,12 @@ def sync_users():
         except SalesforceContact.DoesNotExist:
             contact = SalesforceContact()
 
+
         # SF Layout: Subscription section - Set all the fields needed to save the user to the SF user.
         contact.category1 = user.user_type
         contact.email = user.email
         contact.user_name = user.username
+        contact.is_active = user.is_active
 
         # SF Layout: Profile section.
         # Note: SF last_name is required.
@@ -71,7 +73,7 @@ def sync_users():
 
         if user.address:
             contact.mailing_city = user.address.city
-            contact.mailing_street = user.address.line1 + ' ' + user.address.line2
+            contact.mailing_street = user.address.line1 + '\n' + user.address.line2
             contact.mailing_country = user.address.country.name
             contact.mailing_postal_code = user.address.postal_code
             contact.mailing_state = user.address.state
@@ -136,6 +138,14 @@ def sync_users():
         # Save the SF user.
         contact.save()
 
+        # Delete SalesforceContact if the correspondig BlueBottleUser doesn't exist.
+        sf_users = SalesforceContact.objects.all()
+        for sf_user in sf_users:
+            try:
+                BlueBottleUser.objects.filter(id=sf_user.external_id).get()
+            except BlueBottleUser.DoesNotExist:
+                sf_user.delete()
+
 
 # def sync_donations():
 #     donations = Donation.objects.all()
@@ -145,6 +155,14 @@ def sync_users():
 #             sfdonation = SalesforceDonation.objects.filter(external_id=donation.id).get()
 #         except SalesforceDonation.DoesNotExist:
 #             sfdonation = SalesforceDonation()
+
+        # # Delete SalesforceDonation if the correspondig Donation doesn't exist.
+        # sf_donations = SalesforceDonation.objects.all()
+        # for sf_donation in sf_donations:
+        #     try:
+        #         Donation.objects.filter(id=sf_donation.external_id).get()
+        #     except Donation.DoesNotExist:
+        #         sf_donation.delete()
 
 
 #def sync_organizations():
@@ -156,6 +174,13 @@ def sync_users():
 #        except SalesforceOrganization.DoesNotExist:
 #            sforganization = SalesforceOrganization()
 
+        # # Delete SalesforceOrganization if the correspondig Organization doesn't exist.
+        # sf_organizations = SalesforceOrganization.objects.all()
+        # for sf_organization in sf_organizations:
+        #     try:
+        #         Organization.objects.filter(id=sf_organization.external_id).get()
+        #     except Organization.DoesNotExist:
+        #         sf_organization.delete()
 
 #def sync_tasks():
 #    tasks = Task.objects.all()
@@ -165,6 +190,14 @@ def sync_users():
 #            sftask = SalesforceTask.objects.filter(external_id=task.id).get()
 #        except SalesforceTask.DoesNotExist:
 #            sftask = SalesforceTask()
+
+        # # Delete SalesforceTask if the correspondig Task doesn't exist.
+        # sf_tasks = SalesforceTask.objects.all()
+        # for sf_task in sf_tasks:
+        #     try:
+        #         Task.objects.filter(id=sf_task.external_id).get()
+        #     except Task.DoesNotExist:
+        #         sf_task.delete()
 
 
 # def sync_projects():
@@ -246,6 +279,14 @@ def sync_users():
 #         # Save the SF project.
 #         sfproject.save()
 
+        # # Delete SalesforceProject if the correspondig Project doesn't exist.
+        # sf_projects = SalesforceProject.objects.all()
+        # for sf_project in sf_projects:
+        #     try:
+        #         Project.objects.filter(id=sf_project.external_id).get()
+        #     except Project.DoesNotExist:
+        #         sf_project.delete()
+
 
 # def sync_vouchers():
 #     vouchers = Voucher.objects.all()
@@ -255,6 +296,15 @@ def sync_users():
 #             sfvoucher = SalesforceVoucher.objects.filter(external_id=voucher.id).get()
 #         except SalesforceVoucher.DoesNotExist:
 #             sfvoucher = SalesforceVoucher()
+
+        # # Delete SalesforceVoucher if the correspondig Voucher doesn't exist.
+        # sf_vouchers = SalesforceVoucher.objects.all()
+        # for sf_voucher in sf_vouchers:
+        #     try:
+        #         Voucher.objects.filter(id=sf_voucher.external_id).get()
+        #     except Voucher.DoesNotExist:
+        #         sf_voucher.delete()
+
 
 # This is run when the script is executed with 'runscript'.
 def run():
