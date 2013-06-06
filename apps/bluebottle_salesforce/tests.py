@@ -3,22 +3,45 @@ The test cases in bluebottle_salesforce are intended to be used for integration
 with Django ORM and Salesforce for Onepercentclub.
 """
 import logging
+import requests
 from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from salesforce import auth
 from apps.bluebottle_salesforce.models import SalesforceOrganization, SalesforceContact, SalesforceDonation, SalesforceProject
+from requests.exceptions import ConnectionError
+from django.utils import unittest
+from bluebottle.settings import secrets
 
 logger = logging.getLogger(__name__)
 
 # Define variables
 test_email = 'TestEmail@1procentclub.nl'
 
+# Test some settings and skip tests if these settings are not available.
+try:
+    settings_dict=dict()
+    default_engine = settings_dict['DATABASES'].get('default', settings_dict['Engine'])
+    default_name = settings_dict['DATABASES'].get('default', settings_dict['NAME'])
+    default_user = settings_dict['DATABASES'].get('default', settings_dict['USER'])
+    default_password = settings_dict['DATABASES'].get('default', settings_dict['PASSWORD'])
+
+    sf_engine = settings_dict['DATABASES'].get('salesforce', settings_dict['ENGINE'])
+    sf_consumer_key = settings_dict['DATABASES'].get('salesforce', settings_dict['CONSUMER_KEY'])
+    sf_consumer_secret = settings_dict['DATABASES'].get('salesforce', settings_dict['CONSUMER_SECRET'])
+    default_password = settings_dict['DATABASES'].get('salesforce', settings_dict['USER'])
+    default_password = settings_dict['DATABASES'].get('salesforce', settings_dict['PASSWORD'])
+    requests.get(settings_dict['DATABASES'].get('salesforce', settings_dict['HOST']))
+    run_sf_tests = True
+except (ConnectionError, AttributeError):
+    run_sf_tests = False
+
 
 class OAuthTest(TestCase):
     """
     Test cases verify authentication is working using Django-Salesforce auth with oauth 2.0
     """
+    @unittest.skipUnless(run_sf_tests, 'Salesforce settings or default not set or not online')
     def setUp(self):
         pass
 
