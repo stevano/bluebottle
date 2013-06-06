@@ -13,6 +13,61 @@ from apps.bluebottle_salesforce.models import (SalesforceContact, SalesforceDona
                                                SalesforceTaskMembers) #, SalesforceVoucher)
 
 
+# def sync_organizations():
+#     organizations = Organization.objects.all()
+#     for organization in organizations:
+#         # Find the corresponding SF organization.
+#         try:
+#             sforganization = SalesforceOrganization.objects.filter(external_id=organization.id).get()
+#         except SalesforceOrganization.DoesNotExist:
+#             sforganization = SalesforceOrganization()
+#
+#         # SF Layout: Account details section.
+#         #sforganization.name = organization.name
+#         #sforganization.legal_status = organization.legal_status
+#         # Unkown: - sforganization.organization_type =
+#
+#         # # SF Layout: Address Information section.
+#         #sforganization.external_id = organization.id
+#         # if organization.address:
+#         #     sforganization.billing_city = organization.organizationaddress.country.name
+#             # sforganization.billing_street =
+#             # sforganization.billing_postal_code =
+#         # else:
+#         #     sforganization.billing_city = ''
+#         #     sforganization.billing_street = ''
+#         #     sforganization.billing_postal_code = ''
+#         # sforganization.email_address =
+#         # sforganization.phone =
+#         # sforganization.website =
+#         #
+#         # # SF Layout: Bank Account section.
+#         # sforganization.address_bank =
+#         # sforganization.bank_account_name =
+#         # sforganization.bank_account_number =
+#         # sforganization.bank_name =
+#         # sforganization.bic_swift =
+#         # sforganization.country_bank =
+#         # sforganization.iban_number =
+#         #
+#         # # SF Layout: Description section.
+#         # sforganization.description =
+#         #
+#         # # SF Layout: System Information.
+#         # sforganization.created_date =
+#
+#         # Save the SF project.
+#         sforganization.save()
+#
+#         # Delete SalesforceOrganization if the correspondig Organization doesn't exist.
+#         sf_organizations = SalesforceOrganization.objects.all()
+#         for sf_organization in sf_organizations:
+#             try:
+#                 Organization.objects.filter(id=sf_organization.external_id).get()
+#             except Organization.DoesNotExist:
+#                 sf_organization.delete()
+
+
 def sync_users():
     users = BlueBottleUser.objects.all()
     for user in users:
@@ -21,7 +76,6 @@ def sync_users():
             contact = SalesforceContact.objects.filter(external_id=user.id).get()
         except SalesforceContact.DoesNotExist:
             contact = SalesforceContact()
-
 
         # SF Layout: Subscription section - Set all the fields needed to save the user to the SF user.
         contact.category1 = user.user_type
@@ -43,7 +97,7 @@ def sync_users():
         contact.location = user.location
         # The default: Organization(Account) will be 'Individual' as current.
         # Future purpose deactivate and put the Organization website group value
-        #contact.Account = "ORG_INDIVIDUAL"
+        #contact.organization_account = SalesforceOrganization.objects.filter(external_id=contact.organization.id).get()
         contact.website = user.website
 
         # SF Layout: Contact Information section.
@@ -165,23 +219,6 @@ def sync_users():
         #         sf_donation.delete()
 
 
-#def sync_organizations():
-#    organizations = Organization.objects.all()
-#    for sforganization in organizations:
-#        # Find the corresponding SF organization.
-#        try:
-#            sforganization = SalesforceOrganization.objects.filter(external_id=sforganization.id).get()
-#        except SalesforceOrganization.DoesNotExist:
-#            sforganization = SalesforceOrganization()
-
-        # # Delete SalesforceOrganization if the correspondig Organization doesn't exist.
-        # sf_organizations = SalesforceOrganization.objects.all()
-        # for sf_organization in sf_organizations:
-        #     try:
-        #         Organization.objects.filter(id=sf_organization.external_id).get()
-        #     except Organization.DoesNotExist:
-        #         sf_organization.delete()
-
 #def sync_tasks():
 #    tasks = Task.objects.all()
 #    for task in tasks:
@@ -214,7 +251,7 @@ def sync_users():
 #         sfproject.amount_requested = project.money_asked
 #         sfproject.amount_still_needed = project.money_needed
 #         sfproject.project_name = project.title
-#         # Reference: sfproject.project_owner = project.owner
+#         sfproject.project_owner = SalesforceContact.objects.filter(external_id=project.owner.id).get()
 #         # -- Not the same as (closed,created, done validated)
 #         #  -- fund, idea,act, result (if ...else...?)
 #         # sfproject.status_project = project.phase
@@ -228,8 +265,8 @@ def sync_users():
 #
 #         # SF Layout: Extensive project information section.
 #         # Unknown: sfproject.third_half_project =
-#         # Reference: sfproject.account =
-#         # Reference:??? - sfproject.organization =
+#         #sfproject.account = SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
+#         sfproject.project_organization = project.organization.id # SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
 #         # Unknown: sfproject.comments =
 #         # Unknown: sfproject.contribution_project_in_reducing_poverty =
 #         # Unknown: sfproject.earth_charther_project =
@@ -278,14 +315,14 @@ def sync_users():
 #
 #         # Save the SF project.
 #         sfproject.save()
-
-        # # Delete SalesforceProject if the correspondig Project doesn't exist.
-        # sf_projects = SalesforceProject.objects.all()
-        # for sf_project in sf_projects:
-        #     try:
-        #         Project.objects.filter(id=sf_project.external_id).get()
-        #     except Project.DoesNotExist:
-        #         sf_project.delete()
+#
+#         # Delete SalesforceProject if the correspondig Project doesn't exist.
+#         sf_projects = SalesforceProject.objects.all()
+#         for sf_project in sf_projects:
+#             try:
+#                 Project.objects.filter(id=sf_project.external_id).get()
+#             except Project.DoesNotExist:
+#                 sf_project.delete()
 
 
 # def sync_vouchers():
@@ -306,12 +343,12 @@ def sync_users():
         #         sf_voucher.delete()
 
 
-# This is run when the script is executed with 'runscript'.
+#This is run when the script is executed with 'runscript'.It is needed to run this in order because of dependancies.
 def run():
-    sync_users()
-    # sync_donations()
     # sync_organizations()
+    sync_users()
     # sync_projects()
+    # sync_donations()
     # sync_project_budgets()
     # sync_tasks()
     # sync_task_members()
