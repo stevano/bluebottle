@@ -173,8 +173,8 @@ class SalesforceContact(SalesforceModel):
 
 class SalesforceProject(SalesforceModel):
     """
-    Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CLUB Project(s).
-    """
+Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CLUB Project(s).
+"""
     class ProjectStatus(DjangoChoices):
         closed = ChoiceItem('Closed', label=_("Closed"))
         created = ChoiceItem('Created', label=_("Created"))
@@ -466,17 +466,17 @@ class SalesforceProject(SalesforceModel):
                                                                choices=ProjectCountry.choices,
                                                                help_text=_("Country in which the project is located"))
     describe_the_project_in_one_sentence = models.CharField(max_length=50000, db_column='Describe_the_project_in_one_sentence__c')
-    describe_where_the_money_is_needed_for = models.CharField(max_length=255, db_column='Describe_where_the_money_is_needed_for__c')
-    project_url = models.URLField(db_column='Projecturl__c')
+    describe_where_the_money_is_needed_for = models.CharField(max_length=15000, db_column='Describe_where_the_money_is_needed_for__c')
+    project_url = models.URLField(max_length=255, db_column='Projecturl__c')
 
     # SF Layout: Extensive project information section.
     third_half_project = models.BooleanField(db_column='third_half_project__c')
     #Reference: account = models.CharField(max_length=255, db_column='ACCOUNT__C')
-    project_organization = models.ForeignKey(SalesforceOrganization, db_column='Organization__c')
+    #Reference:??? organization = models.CharField(max_length=255, db_column='Organization__c')
     comments = models.CharField(max_length=32000, db_column='Comments__c')
     contribution_project_in_reducing_poverty = models.CharField(max_length=32000,
                                                                 db_column='Contribution_project_in_reducing_poverty__c')
-    earth_charther_project = models.CharField(max_length=255, db_column='Earth_Charther_project__c')
+    earth_charther_project = models.BooleanField(db_column='Earth_Charther_project__c')
     extensive_project_description = models.CharField(max_length=32000, db_column='Extensive_project_description__c')
     project_goals = models.CharField(max_length=20000, db_column='Project_goals__c')
     sustainability = models.CharField(max_length=20000, db_column='Sustainability__c')

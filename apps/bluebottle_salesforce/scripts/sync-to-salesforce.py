@@ -9,63 +9,63 @@ from apps.organizations.models import Organization
 from apps.tasks.models import Task
 from apps.fund.models import Donation, Voucher
 from apps.bluebottle_salesforce.models import (SalesforceContact, SalesforceDonation, SalesforceOrganization,
-                                               SalesforceProject, SalesforceProjectBudget, SalesforceTask,
-                                               SalesforceTaskMembers) #, SalesforceVoucher)
+                                               SalesforceProjectBudget, SalesforceTask,
+                                               SalesforceTaskMembers, SalesforceProject)
 
 
-# def sync_organizations():
-#     organizations = Organization.objects.all()
-#     for organization in organizations:
-#         # Find the corresponding SF organization.
-#         try:
-#             sforganization = SalesforceOrganization.objects.filter(external_id=organization.id).get()
-#         except SalesforceOrganization.DoesNotExist:
-#             sforganization = SalesforceOrganization()
-#
-#         # SF Layout: Account details section.
-#         #sforganization.name = organization.name
-#         #sforganization.legal_status = organization.legal_status
-#         # Unkown: - sforganization.organization_type =
-#
-#         # # SF Layout: Address Information section.
-#         #sforganization.external_id = organization.id
-#         # if organization.address:
-#         #     sforganization.billing_city = organization.organizationaddress.country.name
-#             # sforganization.billing_street =
-#             # sforganization.billing_postal_code =
-#         # else:
-#         #     sforganization.billing_city = ''
-#         #     sforganization.billing_street = ''
-#         #     sforganization.billing_postal_code = ''
-#         # sforganization.email_address =
-#         # sforganization.phone =
-#         # sforganization.website =
-#         #
-#         # # SF Layout: Bank Account section.
-#         # sforganization.address_bank =
-#         # sforganization.bank_account_name =
-#         # sforganization.bank_account_number =
-#         # sforganization.bank_name =
-#         # sforganization.bic_swift =
-#         # sforganization.country_bank =
-#         # sforganization.iban_number =
-#         #
-#         # # SF Layout: Description section.
-#         # sforganization.description =
-#         #
-#         # # SF Layout: System Information.
-#         # sforganization.created_date =
-#
-#         # Save the SF project.
-#         sforganization.save()
-#
-#         # Delete SalesforceOrganization if the correspondig Organization doesn't exist.
-#         sf_organizations = SalesforceOrganization.objects.all()
-#         for sf_organization in sf_organizations:
-#             try:
-#                 Organization.objects.filter(id=sf_organization.external_id).get()
-#             except Organization.DoesNotExist:
-#                 sf_organization.delete()
+def sync_organizations():
+    organizations = Organization.objects.all()
+    for organization in organizations:
+        # Find the corresponding SF organization.
+        try:
+            sforganization = SalesforceOrganization.objects.filter(external_id=organization.id).get()
+        except SalesforceOrganization.DoesNotExist:
+            sforganization = SalesforceOrganization()
+
+        # SF Layout: Account details section.
+        sforganization.name = organization.name
+        sforganization.legal_status = organization.legal_status
+        # Unkown (Business/Funds/1%IDEA): - sforganization.organization_type =
+
+        # # SF Layout: Address Information section.
+        sforganization.external_id = organization.id
+        # if organization.address:
+        #     sforganization.billing_city = organization.organizationaddress.country.name
+            # sforganization.billing_street =
+            # sforganization.billing_postal_code =
+        # else:
+        #     sforganization.billing_city = ''
+        #     sforganization.billing_street = ''
+        #     sforganization.billing_postal_code = ''
+        # sforganization.email_address =
+        # sforganization.phone =
+        # sforganization.website =
+        #
+        # # SF Layout: Bank Account section.
+        sforganization.address_bank = organization.account_bank_address
+        sforganization.bank_account_name = organization.account_bank_name
+        sforganization.bank_account_number = organization.account_number
+        sforganization.bank_name = organization.name
+        sforganization.bic_swift = organization.account_bic
+        sforganization.country_bank = str(organization.account_bank_country)
+        sforganization.iban_number = organization.account_iban
+
+        # # SF Layout: Description section.
+        sforganization.description = organization.description
+
+        # # SF Layout: System Information.
+        sforganization.created_date = organization.created
+
+        # Save the SF project.
+        sforganization.save()
+
+        # # Delete SalesforceOrganization if the correspondig Organization doesn't exist.
+        # sf_organizations = SalesforceOrganization.objects.all()
+        # for sf_organization in sf_organizations:
+        #     try:
+        #         Organization.objects.filter(id=sf_organization.external_id).get()
+        #     except Organization.DoesNotExist:
+        #         sf_organization.delete()
 
 
 def sync_users():
@@ -78,7 +78,7 @@ def sync_users():
             contact = SalesforceContact()
 
         # SF Layout: Subscription section - Set all the fields needed to save the user to the SF user.
-        contact.category1 = user.user_type
+        contact.category1 = user.user_type  # Selectable type in Salesforce english
         contact.email = user.email
         contact.user_name = user.username
         contact.is_active = user.is_active
@@ -147,13 +147,7 @@ def sync_users():
         #contact.where
 
         # SF Layout: My Settings section.
-        # TODO delete: 20130530 - Not used: discussed with Suzanne,Ben
-        #contact.receive_emails_for_friend_invitations
         contact.receive_newsletter = user.newsletter
-        # TODO delete: 20130530 - Not used: discussed with Suzanne,Ben
-        #contact.email_after_a_new_message
-        # TODO delete: 20130530 - Not used: discussed with Suzanne,Ben
-        #contact.email_after_a_new_public_message
         contact.primary_language = user.primary_language
 
         # SF Layout: All expertise section. -> 20130530 - TODO website by web-team
@@ -193,12 +187,12 @@ def sync_users():
         contact.save()
 
         # Delete SalesforceContact if the correspondig BlueBottleUser doesn't exist.
-        sf_users = SalesforceContact.objects.all()
-        for sf_user in sf_users:
-            try:
-                BlueBottleUser.objects.filter(id=sf_user.external_id).get()
-            except BlueBottleUser.DoesNotExist:
-                sf_user.delete()
+        # sf_users = SalesforceContact.objects.all()
+        # for sf_user in sf_users:
+        #     try:
+        #         BlueBottleUser.objects.filter(id=sf_user.external_id).get()
+        #     except BlueBottleUser.DoesNotExist:
+        #         sf_user.delete()
 
 
 # def sync_donations():
@@ -237,92 +231,92 @@ def sync_users():
         #         sf_task.delete()
 
 
-# def sync_projects():
-#     projects = Project.objects.all()
-#     for project in projects:
-#         # Find the corresponding SF project.
-#         try:
-#             sfproject = SalesforceProject.objects.filter(external_id=project.id).get()
-#         except SalesforceProject.DoesNotExist:
-#             sfproject = SalesforceProject()
-#
-#         # SF Layout: 1%CLUB Project Detail section.
-#         sfproject.amount_at_the_moment = project.money_safe
-#         sfproject.amount_requested = project.money_asked
-#         sfproject.amount_still_needed = project.money_needed
-#         sfproject.project_name = project.title
-#         sfproject.project_owner = SalesforceContact.objects.filter(external_id=project.owner.id).get()
-#         # -- Not the same as (closed,created, done validated)
-#         #  -- fund, idea,act, result (if ...else...?)
-#         # sfproject.status_project = project.phase
-#         # Unknown: sfproject.target_group_s_of_the_project =
-#
-#         # SF Layout: Summary Project Details section.
-#         # Unknown error: sfproject.country_in_which_the_project_is_located = project.country
-#         sfproject.describe_the_project_in_one_sentence = project.description
-#         # Unknown error: sfproject.describe_where_the_money_is_needed_for =
-#         # Unknown error: sfproject.project_url = project.get_absolute_url
-#
-#         # SF Layout: Extensive project information section.
-#         # Unknown: sfproject.third_half_project =
-#         #sfproject.account = SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
-#         sfproject.project_organization = project.organization.id # SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
-#         # Unknown: sfproject.comments =
-#         # Unknown: sfproject.contribution_project_in_reducing_poverty =
-#         # Unknown: sfproject.earth_charther_project =
-#         # Unknown: sfproject.extensive_project_description =
-#         # Unknown: sfproject.project_goals =
-#         # Unknown: sfproject.sustainability =
-#
-#         # SF Layout: Project planning and budget section.
-#         # Unknown: sfproject.additional_explanation_of_budget =
-#         sfproject.end_date_of_the_project = project.planned_end_date
-#         # Unknown: sfproject.expected_funding_through_other_resources =
-#         # Unknown: sfproject.expected_project_results =
-#         # Unknown: sfproject.funding_received_through_other_resources =
-#         # Unknown: sfproject.need_for_volunteers =
-#         # Unknown: sfproject.other_way_people_can_contribute =
-#         # Unknown: sfproject.project_activities_and_timetable =
-#         sfproject.starting_date_of_the_project = project.planned_start_date
-#
-#         # SF Layout: Millennium Goals section.
-#         # Multipicklist: ?? - sfproject.millennium_goals =
-#
-#         # SF Layout: Tags section.
-#         # Note: Not used like contact?-  sfproject.tags =
-#
-#         # SF Layout: Referrals section.
-#         # Unknown: sfproject.name_referral_1 = project.referral.name
-#         # Unknown: sfproject.name_referral_2 =
-#         # Unknown: sfproject.name_referral_3 =
-#         # Unknown: sfproject.description_referral_1 = project.referral.description
-#         # Unknown: sfproject.description_referral_2 =
-#         # Unknown: sfproject.description_referral_3 =
-#         # Unknown: sfproject.email_address_referral_1 = project.referral.email
-#         # Unknown: sfproject.email_address_referral_2 =
-#         # Unknown: sfproject.email_address_referral_3 =
-#         # Unknown: sfproject.relation_referral_1_with_project_org =
-#         # Unknown: sfproject.relation_referral_2_with_project_org =
-#         # Unknown: sfproject.relation_referral_3_with_project_org =
-#
-#         # SF Layout: Project Team Information section.
-#         sfproject.project_created_date = project.created
-#
-#         # SF Layout: International Payment section.
-#
-#         # SF Layout: Other section.
-#         sfproject.external_id = project.id
-#
-#         # Save the SF project.
-#         sfproject.save()
-#
-#         # Delete SalesforceProject if the correspondig Project doesn't exist.
-#         sf_projects = SalesforceProject.objects.all()
-#         for sf_project in sf_projects:
-#             try:
-#                 Project.objects.filter(id=sf_project.external_id).get()
-#             except Project.DoesNotExist:
-#                 sf_project.delete()
+def sync_projects():
+    projects = Project.objects.all()
+    for project in projects:
+        # Find the corresponding SF project.
+        try:
+            sfproject = SalesforceProject.objects.filter(external_id=project.id).get()
+        except SalesforceProject.DoesNotExist:
+            sfproject = SalesforceProject()
+
+        # SF Layout: 1%CLUB Project Detail section.
+        sfproject.amount_at_the_moment = project.money_safe
+        sfproject.amount_requested = project.money_asked
+        sfproject.amount_still_needed = project.money_needed
+        sfproject.project_name = project.title
+        sfproject.project_owner = SalesforceContact.objects.filter(external_id=project.owner.id).get()
+        # -- Not the same as (closed,created, done validated)
+        #  -- fund, idea,act, result (if ...else...?)
+        sfproject.status_project = project.phase
+        # Unknown: sfproject.target_group_s_of_the_project =
+
+        # SF Layout: Summary Project Details section.
+        #sfproject.country_in_which_the_project_is_located = project.country
+        sfproject.describe_the_project_in_one_sentence = project.description
+        # Unknown error: sfproject.describe_where_the_money_is_needed_for =
+        # Unknown error: sfproject.project_url = project.get_absolute_url
+
+        # SF Layout: Extensive project information section.
+        # Unknown: sfproject.third_half_project =
+        sfproject.account = SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
+        # sfproject.project_organization = project.organization.id # SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
+        # Unknown: sfproject.comments =
+        # Unknown: sfproject.contribution_project_in_reducing_poverty =
+        # Unknown: sfproject.earth_charther_project =
+        # Unknown: sfproject.extensive_project_description =
+        # Unknown: sfproject.project_goals =
+        # Unknown: sfproject.sustainability =
+
+        # SF Layout: Project planning and budget section.
+        # Unknown: sfproject.additional_explanation_of_budget =
+        sfproject.end_date_of_the_project = project.planned_end_date
+        # Unknown: sfproject.expected_funding_through_other_resources =
+        # Unknown: sfproject.expected_project_results =
+        # Unknown: sfproject.funding_received_through_other_resources =
+        # Unknown: sfproject.need_for_volunteers =
+        # Unknown: sfproject.other_way_people_can_contribute =
+        # Unknown: sfproject.project_activities_and_timetable =
+        sfproject.starting_date_of_the_project = project.planned_start_date
+
+        # SF Layout: Millennium Goals section.
+        # Multipicklist: ?? - sfproject.millennium_goals =
+
+        # SF Layout: Tags section.
+        # Note: Not used like contact?-  sfproject.tags =
+
+        # SF Layout: Referrals section.
+        # Unknown: sfproject.name_referral_1 = project.referral.name
+        # Unknown: sfproject.name_referral_2 =
+        # Unknown: sfproject.name_referral_3 =
+        # Unknown: sfproject.description_referral_1 = project.referral.description
+        # Unknown: sfproject.description_referral_2 =
+        # Unknown: sfproject.description_referral_3 =
+        # Unknown: sfproject.email_address_referral_1 = project.referral.email
+        # Unknown: sfproject.email_address_referral_2 =
+        # Unknown: sfproject.email_address_referral_3 =
+        # Unknown: sfproject.relation_referral_1_with_project_org =
+        # Unknown: sfproject.relation_referral_2_with_project_org =
+        # Unknown: sfproject.relation_referral_3_with_project_org =
+
+        # SF Layout: Project Team Information section.
+        sfproject.project_created_date = project.created
+
+        # SF Layout: International Payment section.
+
+        # SF Layout: Other section.
+        sfproject.external_id = project.id
+
+        # Save the SF project.
+        sfproject.save()
+
+        # # Delete SalesforceProject if the correspondig Project doesn't exist.
+        # sf_projects = SalesforceProject.objects.all()
+        # for sf_project in sf_projects:
+        #     try:
+        #         Project.objects.filter(id=sf_project.external_id).get()
+        #     except Project.DoesNotExist:
+        #         sf_project.delete()
 
 
 # def sync_vouchers():
@@ -346,8 +340,8 @@ def sync_users():
 #This is run when the script is executed with 'runscript'.It is needed to run this in order because of dependancies.
 def run():
     # sync_organizations()
-    sync_users()
-    # sync_projects()
+    # sync_users()
+    sync_projects()
     # sync_donations()
     # sync_project_budgets()
     # sync_tasks()
