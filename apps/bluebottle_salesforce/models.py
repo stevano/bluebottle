@@ -64,7 +64,7 @@ class SalesforceOrganization(SalesforceModel):
 
     class Meta:
         db_table = 'Account'
-
+        managed = False
 
 class SalesforceContact(SalesforceModel):
     """
@@ -169,12 +169,12 @@ class SalesforceContact(SalesforceModel):
 
     class Meta:
         db_table = 'Contact'
-
+        managed = False
 
 class SalesforceProject(SalesforceModel):
     """
-Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CLUB Project(s).
-"""
+    Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CLUB Project(s).
+    """
     class ProjectStatus(DjangoChoices):
         closed = ChoiceItem('Closed', label=_("Closed"))
         created = ChoiceItem('Created', label=_("Created"))
@@ -471,8 +471,7 @@ Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CL
 
     # SF Layout: Extensive project information section.
     third_half_project = models.BooleanField(db_column='third_half_project__c')
-    #Reference: account = models.CharField(max_length=255, db_column='ACCOUNT__C')
-    #Reference:??? organization = models.CharField(max_length=255, db_column='Organization__c')
+    organization_account = models.ForeignKey(SalesforceOrganization, db_column='Organization__c')
     comments = models.CharField(max_length=32000, db_column='Comments__c')
     contribution_project_in_reducing_poverty = models.CharField(max_length=32000,
                                                                 db_column='Contribution_project_in_reducing_poverty__c')
@@ -523,6 +522,7 @@ Custom Salesforce Project__c model. For Onepercentclub the mapping is named 1%CL
 
     class Meta:
         db_table = 'Project__c'
+        managed = False
 
 
 class SalesforceProjectBudget(SalesforceModel):
@@ -553,7 +553,7 @@ class SalesforceProjectBudget(SalesforceModel):
 
     class Meta:
         db_table = 'Project_Budget__c'
-
+        managed = False
 
 class SalesforceDonation(SalesforceModel):
     """
@@ -574,8 +574,8 @@ class SalesforceDonation(SalesforceModel):
                                       db_column='Payment_method__c',
                                       choices=OpportunityPaymentMethod.choices,
                                       help_text=_("PaymentMethod"))
-    #Account = models.ForeignKey(Account, db_column='AccountId')
-    #Project = models.ForeignKey(Project, db_column='ProjectId')
+    organization = models.ForeignKey(SalesforceOrganization, db_column='Project_Organization__c')
+    project = models.ForeignKey(SalesforceProject, db_column='Project__c')
     stage_name = models.CharField(max_length=40, db_column='StageName', choices=OpportunityStageName.choices, help_text=_("StageName"))
     donation_type = models.CharField(max_length=1000, db_column='Type')
 
@@ -588,11 +588,12 @@ class SalesforceDonation(SalesforceModel):
 
     # SF: Other.
     # TODO: check the maximum positive integer..Note!!!! id will be newly generated
-    donation_external_id = models.PositiveIntegerField(db_column='Donation_External_ID__c')
-    #Receiver = models.ForeignKey(Project, db_column='ReceiverId')
+    external_id = models.CharField(max_length=255, db_column='Donation_External_ID__c')
+    receiver = models.ForeignKey(SalesforceContact, db_column='Receiver__c')
 
     class Meta:
         db_table = 'Opportunity'
+        managed = False
 
 
 # TODO: Ask github if different recordtypes on Opportunity for example is the intended behaviour.
@@ -627,6 +628,7 @@ class SalesforceDonation(SalesforceModel):
 #
 #     class Meta:
 #         db_table = 'Opportunity'
+#         managed = False
 
 
 class SalesforceTask(SalesforceModel):
@@ -655,10 +657,11 @@ class SalesforceTask(SalesforceModel):
     # SF Layout: System Information section.
 
     # SF: Other
-    task_external_id = models.CharField(max_length=255, db_column='Task_External_ID__c')
+    external_id = models.CharField(max_length=255, db_column='Task_External_ID__c')
 
     class Meta:
         db_table = 'onepercentclubTasks__c'
+        managed = False
 
 
 class SalesforceTaskMembers(SalesforceModel):
@@ -673,7 +676,7 @@ class SalesforceTaskMembers(SalesforceModel):
 
     class Meta:
         db_table = 'Task_Members__c'
-
+        managed = False
 
 # Other Salesforce models available from Force.com IDE (Eclipse based)
 # - ActivityHistory, AddtionalNumber, AggregateResult

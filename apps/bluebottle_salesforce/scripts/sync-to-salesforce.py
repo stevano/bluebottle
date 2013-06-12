@@ -195,14 +195,35 @@ def sync_users():
         #         sf_user.delete()
 
 
-# def sync_donations():
-#     donations = Donation.objects.all()
-#     for donation in donations:
-#         # Find the corresponding SF donation.
-#         try:
-#             sfdonation = SalesforceDonation.objects.filter(external_id=donation.id).get()
-#         except SalesforceDonation.DoesNotExist:
-#             sfdonation = SalesforceDonation()
+def sync_donations():
+    donations = Donation.objects.all()
+    for donation in donations:
+        # Find the corresponding SF donation.
+        try:
+            sfdonation = SalesforceDonation.objects.filter(external_id=donation.id).get()
+        except SalesforceDonation.DoesNotExist:
+            sfdonation = SalesforceDonation()
+
+        # SF Layout: Donation Information section.
+        sfdonation.amount = donation.amount
+        # Unknown - sfdonation.close_date =
+        sfdonation.name = str(donation.user.last_name) + " " + str(donation.user.first_name) + " - " + str(donation.donation_type)
+        # Unknown - sfdonation.payment_method =
+        # Unknown - sfdonation.organization = SalesforceOrganization.objects.filter(external_id=donation.organization.id).get()
+        sfdonation.project = SalesforceProject.objects.filter(external_id=donation.project.id).get()
+        # Unknown - sfdonation.stage_name =
+        sfdonation.donation_type = donation.donation_type
+
+        # SF Layout: Additional Information section.
+
+        # SF Layout: Description Information section.
+
+        # SF Layout: System Information section.
+        sfdonation.donation_created_date = donation.created
+
+        # SF: Other.
+        sfdonation.donation_external_id = donation.id
+        sfdonation.receiver = SalesforceContact.objects.filter(external_id=donation.user.id).get()
 
         # # Delete SalesforceDonation if the correspondig Donation doesn't exist.
         # sf_donations = SalesforceDonation.objects.all()
@@ -259,8 +280,7 @@ def sync_projects():
 
         # SF Layout: Extensive project information section.
         # Unknown: sfproject.third_half_project =
-        sfproject.account = SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
-        # sfproject.project_organization = project.organization.id # SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
+        sfproject.organization_account = SalesforceOrganization.objects.filter(external_id=project.organization.id).get()
         # Unknown: sfproject.comments =
         # Unknown: sfproject.contribution_project_in_reducing_poverty =
         # Unknown: sfproject.earth_charther_project =
@@ -280,7 +300,7 @@ def sync_projects():
         sfproject.starting_date_of_the_project = project.planned_start_date
 
         # SF Layout: Millennium Goals section.
-        # Multipicklist: ?? - sfproject.millennium_goals =
+        # Unknown - Multipicklist: ?? - sfproject.millennium_goals =
 
         # SF Layout: Tags section.
         # Note: Not used like contact?-  sfproject.tags =
@@ -339,9 +359,9 @@ def sync_projects():
 
 #This is run when the script is executed with 'runscript'.It is needed to run this in order because of dependancies.
 def run():
-    # sync_organizations()
-    # sync_users()
-    sync_projects()
+    #sync_organizations()
+    sync_users()
+    #sync_projects()
     # sync_donations()
     # sync_project_budgets()
     # sync_tasks()
