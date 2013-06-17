@@ -466,6 +466,7 @@ class SalesforceProject(SalesforceModel):
     amount_at_the_moment = models.CharField(max_length=255, db_column='Amount_at_the_moment__c')
     amount_requested = models.CharField(max_length=255, db_column='Amount_requested__c')
     amount_still_needed = models.CharField(max_length=255, db_column='Amount_still_needed__c')
+    # Should it be 255 like the Project model on new Website
     project_name = models.CharField(max_length=80, db_column='Project_name__c')
     project_owner = models.ForeignKey(SalesforceContact, db_column='Project_Owner__c')
     status_project = models.CharField(max_length=255,
